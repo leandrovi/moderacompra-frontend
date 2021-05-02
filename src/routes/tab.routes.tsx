@@ -6,30 +6,32 @@ import { ifIphoneX } from "react-native-iphone-x-helper";
 import { Home } from "../pages/Home";
 import { NewList } from "../pages/NewList";
 
+import colors from "../styles/colors";
+
 const tabRoutes = createBottomTabNavigator();
 
 const TabRoutes: React.FC = () => (
   <tabRoutes.Navigator
     tabBarOptions={{
-      activeTintColor: "red",
-      inactiveTintColor: "pink",
+      activeTintColor: colors.orange,
+      inactiveTintColor: colors.lightGray,
       labelPosition: "below-icon",
       style: {
         ...ifIphoneX(
           {
             paddingVertical: 20,
-            height: 88,
+            height: 98,
           },
           {
-            paddingTop: 10,
+            paddingTop: 14,
             paddingBottom: 14,
-            height: 70,
+            height: 78,
           }
         ),
       },
       labelStyle: {
-        alignItems: "center",
-        justifyContent: "center",
+        fontSize: 14,
+        lineHeight: 24,
       },
     }}
   >
