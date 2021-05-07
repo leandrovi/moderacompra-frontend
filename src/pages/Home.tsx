@@ -2,12 +2,14 @@ import React from "react";
 import { StyleSheet, View, Text, Image, Platform } from "react-native";
 import { getStatusBarHeight } from "react-native-iphone-x-helper";
 import { StatusBar } from "expo-status-bar";
-import { LinearGradient } from "expo-linear-gradient";
 
+// Assets
 import userImg from "../assets/perfil-foto-pico.jpeg";
 
-import SuccessIcon from "../assets/svgs/SuccessIcon";
+// Components
+import { Info } from "../components/Info";
 
+// Styles
 import colors from "../styles/colors";
 import fonts from "../styles/fonts";
 
@@ -28,21 +30,10 @@ export function Home() {
           Aqui você encontrará suas listas{`\n`}pendentes e em aberto.
         </Text>
 
-        <View style={styles.info}>
-          <LinearGradient
-            colors={["#E8FBF1", "#EDFFF5"]}
-            start={{ x: 0.5, y: 1 }}
-            end={{ x: 0.55, y: 0 }}
-            locations={[0.2258, 0.804]}
-            style={styles.background}
-          >
-            <SuccessIcon width={50} height={50} style={styles.icon} />
-
-            <Text style={styles.infoText}>
-              Você já pode importar a sua primeira lista em ”Nova Lista”
-            </Text>
-          </LinearGradient>
-        </View>
+        <Info
+          type="blue"
+          text='Você já pode importar a sua primeira lista em "Nova Lista"'
+        />
       </View>
 
       <StatusBar
@@ -96,31 +87,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     marginBottom: 26,
-  },
-
-  info: {
-    width: "100%",
-  },
-
-  background: {
-    width: "100%",
-    paddingHorizontal: 29,
-    paddingVertical: 18,
-    borderRadius: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  icon: {
-    marginRight: 22,
-  },
-
-  infoText: {
-    width: "70%",
-    fontSize: 14,
-    lineHeight: 24,
-    color: colors.green,
-    fontFamily: fonts.text,
   },
 });
