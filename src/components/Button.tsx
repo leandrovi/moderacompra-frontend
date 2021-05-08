@@ -51,7 +51,7 @@ export function Button({
 
 const styles = StyleSheet.create({
   container: {
-    height: 50,
+    height: 54,
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",

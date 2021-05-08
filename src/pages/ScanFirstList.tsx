@@ -8,6 +8,7 @@ import {
 
 // Assets
 import GroceryIcon from "../assets/svgs/GroceryIcon";
+import { BackButton } from "../components/BackButton";
 import { Button } from "../components/Button";
 
 // Components`
@@ -21,6 +22,8 @@ export function ScanFirstList() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
+        <BackButton />
+
         <GroceryIcon width={160} height={161} />
 
         <Text style={styles.text}>
