@@ -1,3 +1,4 @@
+import { useNavigation } from "@react-navigation/core";
 import React from "react";
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import {
@@ -19,6 +20,12 @@ import colors from "../styles/colors";
 import fonts from "../styles/fonts";
 
 export function ScanFirstList() {
+  const navigation = useNavigation();
+
+  function handleScanCoupon() {
+    navigation.navigate("QRScan");
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -55,7 +62,11 @@ export function ScanFirstList() {
           Sua lista ainda está vazia
         </Text>
 
-        <Button text="ESCANEAR CUPOM" isQRButton={true} />
+        <Button
+          text="ESCANEAR CUPOM"
+          isQRButton={true}
+          onPress={handleScanCoupon}
+        />
       </View>
     </View>
   );

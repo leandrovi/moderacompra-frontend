@@ -1,9 +1,15 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 
-import { ScanFirstList } from "../pages/ScanFirstList";
-import colors from "../styles/colors";
+// Other routes
 import TabRoutes from "./tab.routes";
+
+// Screens
+import { ScanFirstList } from "../pages/ScanFirstList";
+import { QRScan } from "../pages/QRScan";
+
+// Styles
+import colors from "../styles/colors";
 
 const stackRoutes = createStackNavigator();
 
@@ -18,6 +24,7 @@ const AppRoutes: React.FC = () => (
   >
     <stackRoutes.Screen name="HomeRoutes" component={TabRoutes} />
     <stackRoutes.Screen name="ScanFirstList" component={ScanFirstList} />
+    <stackRoutes.Screen name="QRScan" component={QRScan} />
   </stackRoutes.Navigator>
 );
 
