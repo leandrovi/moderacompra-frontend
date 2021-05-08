@@ -5,12 +5,14 @@ import { createStackNavigator } from "@react-navigation/stack";
 import TabRoutes from "./tab.routes";
 
 // Screens
-import { ScanFirstList } from "../pages/ScanFirstList";
+import { ScanFirstListAndroid } from "../pages/ScanFirstList.android";
+import { ScanFirstListIOS } from "../pages/ScanFirstList.ios";
 import { QRScan } from "../pages/QRScan";
 import { EditList } from "../pages/EditList";
 
 // Styles
 import colors from "../styles/colors";
+import { Platform } from "react-native";
 
 const stackRoutes = createStackNavigator();
 
@@ -24,7 +26,12 @@ const AppRoutes: React.FC = () => (
     }}
   >
     <stackRoutes.Screen name="HomeRoutes" component={TabRoutes} />
-    <stackRoutes.Screen name="ScanFirstList" component={ScanFirstList} />
+    <stackRoutes.Screen
+      name="ScanFirstList"
+      component={
+        Platform.OS === "android" ? ScanFirstListAndroid : ScanFirstListIOS
+      }
+    />
     <stackRoutes.Screen name="QRScan" component={QRScan} />
     <stackRoutes.Screen name="EditList" component={EditList} />
   </stackRoutes.Navigator>

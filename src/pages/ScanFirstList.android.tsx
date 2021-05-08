@@ -1,6 +1,13 @@
 import { useNavigation } from "@react-navigation/core";
 import React from "react";
-import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  SafeAreaView,
+  ScrollView,
+} from "react-native";
 import {
   getStatusBarHeight,
   getBottomSpace,
@@ -19,7 +26,7 @@ import { Info } from "../components/Info";
 import colors from "../styles/colors";
 import fonts from "../styles/fonts";
 
-export function ScanFirstList() {
+export function ScanFirstListAndroid() {
   const navigation = useNavigation();
 
   function handleScanCoupon() {
@@ -27,7 +34,7 @@ export function ScanFirstList() {
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.backContainer}>
           <BackButton />
@@ -70,14 +77,14 @@ export function ScanFirstList() {
           onPress={handleScanCoupon}
         />
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "space-between",
+    // justifyContent: "space-between",
   },
 
   header: {
