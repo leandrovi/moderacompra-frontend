@@ -2,6 +2,8 @@ export default {
   green: "#0AA06E",
   darkGreen: "#439597",
 
+  blue: "#34ACE0",
+
   purple: "#663399",
 
   orange: "#E4803A",

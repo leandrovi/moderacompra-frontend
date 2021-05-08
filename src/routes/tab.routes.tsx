@@ -5,8 +5,10 @@ import { ifIphoneX } from "react-native-iphone-x-helper";
 
 import { Home } from "../pages/Home";
 import { NewList } from "../pages/NewList";
+import { CurrentList } from "../pages/CurrentList";
 
 import colors from "../styles/colors";
+import { Lists } from "../pages/Lists";
 
 const tabRoutes = createBottomTabNavigator();
 
@@ -50,6 +52,32 @@ const TabRoutes: React.FC = () => (
       options={{
         tabBarIcon: ({ size, color }) => (
           <MaterialIcons name="add-circle-outline" size={size} color={color} />
+        ),
+      }}
+    />
+    <tabRoutes.Screen
+      name="Lista Atual"
+      component={CurrentList}
+      options={{
+        tabBarIcon: ({ size, color }) => (
+          <MaterialIcons
+            name="assignment-turned-in"
+            size={size}
+            color={color}
+          />
+        ),
+      }}
+    />
+    <tabRoutes.Screen
+      name="Listas"
+      component={Lists}
+      options={{
+        tabBarIcon: ({ size, color }) => (
+          <MaterialIcons
+            name="format-list-bulleted"
+            size={size}
+            color={color}
+          />
         ),
       }}
     />
