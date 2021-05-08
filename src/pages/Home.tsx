@@ -1,39 +1,35 @@
-import React from "react";
+import React, { useState } from "react";
 import { StyleSheet, View, Text, Image, Platform } from "react-native";
-import { getStatusBarHeight } from "react-native-iphone-x-helper";
 import { StatusBar } from "expo-status-bar";
-
-// Assets
-import userImg from "../assets/perfil-foto-pico.jpeg";
 
 // Components
 import { Info } from "../components/Info";
+import { Header } from "../components/Header";
 
 // Styles
 import colors from "../styles/colors";
 import fonts from "../styles/fonts";
 
 export function Home() {
+  const [isFirstList, setIsFirstList] = useState(true);
+
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.greeting}>Olá,</Text>
-          <Text style={styles.name}>Leandro</Text>
-        </View>
-
-        <Image source={userImg} style={styles.image} />
-      </View>
+      <Header firstLine="Olá," secondLine="Leandro" />
 
       <View style={styles.content}>
-        <Text style={styles.text}>
-          Aqui você encontrará suas listas{`\n`}pendentes e em aberto.
-        </Text>
+        {isFirstList && (
+          <>
+            <Text style={styles.text}>
+              Aqui você encontrará suas listas{`\n`}pendentes e em aberto.
+            </Text>
 
-        <Info
-          type="blue"
-          text='Você já pode importar a sua primeira lista em "Nova Lista"'
-        />
+            <Info
+              type="blue"
+              text='Você já pode importar a sua primeira lista em "Nova Lista"'
+            />
+          </>
+        )}
       </View>
 
       <StatusBar
@@ -50,35 +46,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
   },
 
-  header: {
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 40,
-    marginTop: getStatusBarHeight(),
-  },
-
-  greeting: {
-    fontSize: 32,
-    lineHeight: 36,
-    color: colors.darkGray,
-    fontFamily: fonts.text,
-  },
-
-  name: {
-    fontSize: 32,
-    lineHeight: 36,
-    color: colors.darkGray,
-    fontFamily: fonts.title,
-  },
-
-  image: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-  },
-
   content: {
     paddingBottom: 20,
   },
@@ -87,5 +54,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     marginBottom: 26,
+    fontFamily: fonts.textLight,
   },
 });
