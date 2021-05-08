@@ -6,14 +6,20 @@ import { ifIphoneX } from "react-native-iphone-x-helper";
 import { Home } from "../pages/Home";
 import { NewList } from "../pages/NewList";
 import { CurrentList } from "../pages/CurrentList";
+import { Lists } from "../pages/Lists";
+import { CreateFirstList } from "../pages/CreateFirstList";
 
 import colors from "../styles/colors";
-import { Lists } from "../pages/Lists";
 
 const tabRoutes = createBottomTabNavigator();
 
+let isFirstList = true;
+
 const TabRoutes: React.FC = () => (
   <tabRoutes.Navigator
+    sceneContainerStyle={{
+      backgroundColor: colors.white,
+    }}
     tabBarOptions={{
       activeTintColor: colors.orange,
       inactiveTintColor: colors.lightGray,
@@ -48,7 +54,7 @@ const TabRoutes: React.FC = () => (
     />
     <tabRoutes.Screen
       name="Nova Lista"
-      component={NewList}
+      component={isFirstList ? CreateFirstList : NewList}
       options={{
         tabBarIcon: ({ size, color }) => (
           <MaterialIcons name="add-circle-outline" size={size} color={color} />
