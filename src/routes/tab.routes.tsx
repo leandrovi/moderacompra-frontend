@@ -5,9 +5,9 @@ import { ifIphoneX } from "react-native-iphone-x-helper";
 
 import { Home } from "../pages/Home";
 import { NewList } from "../pages/NewList";
+import { CreateFirstList } from "../pages/CreateFirstList";
 import { CurrentList } from "../pages/CurrentList";
 import { Lists } from "../pages/Lists";
-import { CreateFirstList } from "../pages/CreateFirstList";
 
 import colors from "../styles/colors";
 

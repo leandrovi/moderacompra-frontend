@@ -3,10 +3,11 @@ import { createStackNavigator } from "@react-navigation/stack";
 
 import { ScanFirstList } from "../pages/ScanFirstList";
 import colors from "../styles/colors";
+import TabRoutes from "./tab.routes";
 
 const stackRoutes = createStackNavigator();
 
-const StackRoutes: React.FC = () => (
+const AppRoutes: React.FC = () => (
   <stackRoutes.Navigator
     headerMode="none"
     screenOptions={{
@@ -15,8 +16,9 @@ const StackRoutes: React.FC = () => (
       },
     }}
   >
+    <stackRoutes.Screen name="HomeRoutes" component={TabRoutes} />
     <stackRoutes.Screen name="ScanFirstList" component={ScanFirstList} />
   </stackRoutes.Navigator>
 );
 
-export default StackRoutes;
+export default AppRoutes;

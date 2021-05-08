@@ -3,9 +3,16 @@ import React from "react";
 import { StyleSheet, View, Text } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
+// Assets
+import Plus from "../assets/svgs/Plus";
+
 // Components
 import { Header } from "../components/Header";
 import { Info } from "../components/Info";
+
+// Styles
+import colors from "../styles/colors";
+import fonts from "../styles/fonts";
 
 export function CreateFirstList() {
   const navigation = useNavigation();
@@ -24,12 +31,12 @@ export function CreateFirstList() {
       />
 
       <View style={styles.content}>
-        <Text>Nova lista</Text>
-
         <TouchableOpacity
           style={styles.firstListButton}
           onPress={handleCreateFirstList}
-        ></TouchableOpacity>
+        >
+          <Text style={styles.text}>Nova lista</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -47,5 +54,19 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 
-  firstListButton: {},
+  firstListButton: {
+    width: 150,
+    height: 150,
+    backgroundColor: colors.orange,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 14,
+  },
+
+  text: {
+    fontFamily: fonts.title,
+    fontSize: 16,
+    lineHeight: 24,
+    color: colors.white,
+  },
 });
