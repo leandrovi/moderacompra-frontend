@@ -15,7 +15,7 @@ export interface User {
 
 export interface Status {
   id: string;
-  description: string;
+  description: "pending" | "open" | "closed";
 }
 
 export interface List {

@@ -29,7 +29,9 @@ export function ScanFirstList() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <BackButton />
+        <View style={styles.backContainer}>
+          <BackButton />
+        </View>
 
         <GroceryIcon width={160} height={161} />
 
@@ -85,6 +87,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     paddingTop: getStatusBarHeight() + 40,
     paddingBottom: 90,
+  },
+
+  backContainer: {
+    position: "absolute",
+    left: 32,
+    top: getStatusBarHeight() + 40,
   },
 
   text: {

@@ -1,9 +1,7 @@
 import React from "react";
 import { useNavigation } from "@react-navigation/core";
-import { StyleSheet } from "react-native";
 import { RectButton, RectButtonProps } from "react-native-gesture-handler";
 import { MaterialIcons } from "@expo/vector-icons";
-import { getStatusBarHeight } from "react-native-iphone-x-helper";
 
 import colors from "../styles/colors";
 
@@ -17,16 +15,8 @@ export function BackButton({ ...rest }: BackButton) {
   }
 
   return (
-    <RectButton {...rest} onPress={handleBackScreen} style={styles.container}>
+    <RectButton {...rest} onPress={handleBackScreen}>
       <MaterialIcons name="arrow-back-ios" size={30} color={colors.darkGray} />
     </RectButton>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    position: "absolute",
-    left: 32,
-    top: getStatusBarHeight() + 40,
-  },
-});

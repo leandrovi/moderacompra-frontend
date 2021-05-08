@@ -7,6 +7,7 @@ import TabRoutes from "./tab.routes";
 // Screens
 import { ScanFirstList } from "../pages/ScanFirstList";
 import { QRScan } from "../pages/QRScan";
+import { EditList } from "../pages/EditList";
 
 // Styles
 import colors from "../styles/colors";
@@ -25,6 +26,7 @@ const AppRoutes: React.FC = () => (
     <stackRoutes.Screen name="HomeRoutes" component={TabRoutes} />
     <stackRoutes.Screen name="ScanFirstList" component={ScanFirstList} />
     <stackRoutes.Screen name="QRScan" component={QRScan} />
+    <stackRoutes.Screen name="EditList" component={EditList} />
   </stackRoutes.Navigator>
 );
 
