@@ -13,15 +13,16 @@ export interface User {
   id_behaviour: string;
 }
 
-export interface Status {
-  id: string;
-  description: "pending" | "open" | "closed";
+export enum StatusEnum {
+  pending = "pending",
+  open = "open",
+  closed = "closed",
 }
 
 export interface List {
   id: string;
   user_id: string;
-  status_id: string;
+  status: StatusEnum;
 }
 
 export interface Product {

@@ -1,10 +1,33 @@
-import React from "react";
-import { useRoute } from "@react-navigation/core";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, View, Text } from "react-native";
+import { useRoute } from "@react-navigation/core";
+
+// Interfaces
+import { Product } from "../interfaces";
+import { ListLayout } from "../components/ListLayout";
 
 interface EditListParams {
   url: string;
 }
+
+const products: Product[] = [
+  {
+    id: "0",
+    name: "Banana",
+  },
+  {
+    id: "1",
+    name: "Adoçante",
+  },
+  {
+    id: "2",
+    name: "Açúcar",
+  },
+  {
+    id: "3",
+    name: "Papel Higiênico",
+  },
+];
 
 export function EditList() {
   const routes = useRoute();
@@ -13,9 +36,7 @@ export function EditList() {
 
   return (
     <View style={styles.container}>
-      <Text>Edição da Lista</Text>
-      <Text>URL da nota:</Text>
-      <Text>{url}</Text>
+      <ListLayout />
     </View>
   );
 }
@@ -23,7 +44,5 @@ export function EditList() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
   },
 });

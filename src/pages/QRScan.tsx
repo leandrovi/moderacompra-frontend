@@ -64,6 +64,7 @@ export function QRScan() {
         x <= viewMinX + finderWidth / 2 &&
         y <= viewMinY + finderHeight / 2
       ) {
+        // TO-DO: show alert case data is empty
         setScanned(true);
         navigation.navigate("EditList", { url: data });
       }
