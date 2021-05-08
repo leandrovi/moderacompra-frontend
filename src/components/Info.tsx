@@ -26,7 +26,7 @@ export function Info({ text, type }: InfoProps) {
     if (type === "orange") {
       return (
         <InfoBlue
-          pathColor={colors.orange}
+          pathColor={colors.lightOrange}
           width={50}
           height={50}
           style={styles.icon}
@@ -65,7 +65,7 @@ export function Info({ text, type }: InfoProps) {
 
     if (type === "orange") {
       setBackgroundColors(["#FBF4E7", "#FFF8EB"]);
-      setTextColor(colors.orange);
+      setTextColor(colors.lightOrange);
     }
 
     if (type === "purple") {

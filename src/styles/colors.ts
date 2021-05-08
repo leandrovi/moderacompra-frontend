@@ -6,8 +6,9 @@ export default {
 
   purple: "#663399",
 
-  orange: "#E4803A",
+  whiteOrange: "#FFF8F3",
   lightOrange: "#F3B13D",
+  orange: "#E4803A",
 
   red: "#F65050",
 

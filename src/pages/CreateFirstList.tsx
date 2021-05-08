@@ -1,10 +1,6 @@
 import { useNavigation } from "@react-navigation/core";
 import React from "react";
-import { StyleSheet, View, Text } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
-
-// Assets
-import Plus from "../assets/svgs/Plus";
+import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 
 // Components
 import { Header } from "../components/Header";
