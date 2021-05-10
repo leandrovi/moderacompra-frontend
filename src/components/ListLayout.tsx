@@ -10,15 +10,21 @@ import colors from "../styles/colors";
 import fonts from "../styles/fonts";
 
 // Interfaces
-import { StatusEnum } from "../interfaces";
+import { StatusEnum, User } from "../interfaces";
+import { ListWithStatus } from "../entities/ListWithStatus";
 
-export function ListLayout() {
+interface Props {
+  listWithStatus: ListWithStatus;
+}
+
+export function ListLayout({ listWithStatus }: Props) {
   const [isFirstList, setIsFirstList] = useState(true);
   const [isNewList, setIsNewList] = useState(false);
   const [status, setStatus] = useState<StatusEnum | null>(StatusEnum.open);
 
   const [headerFirstLine, setHeaderFirstLine] = useState<string>("");
   const [headerSecondLine, setHeaderSecondLine] = useState<string>("");
+  const actualDate = `${new Date().getDate()}/${new Date().getMonth()}/${new Date().getFullYear()}`;
 
   function handleHeaderTitle() {
     if (isFirstList) {
@@ -39,17 +45,20 @@ export function ListLayout() {
 
   return (
     <View style={styles.container}>
-      <Header firstLine={headerFirstLine} secondLine={headerSecondLine} />
-
+      <View style={styles.details}>
+        <Header firstLine={headerFirstLine} secondLine={headerSecondLine} />
+      </View>
       <View style={styles.details}>
         <View style={styles.detailLine}>
           <Text style={styles.detailTitle}>Data:</Text>
-          <Text style={styles.detailValue}>01/04/2021</Text>
+          <Text style={styles.detailValue}>{actualDate.toString()}</Text>
         </View>
 
         <View style={styles.detailLine}>
           <Text style={styles.detailTitle}>Itens:</Text>
-          <Text style={styles.detailValue}>84</Text>
+          <Text style={styles.detailValue}>
+            {listWithStatus?.listProdScrap.products.length}
+          </Text>
         </View>
       </View>
 
@@ -64,12 +73,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 32,
+    //justifyContent: "space-between",
+    //paddingHorizontal: 32,
   },
 
   details: {
     width: "100%",
+    paddingBottom: 26,
   },
 
   detailLine: {

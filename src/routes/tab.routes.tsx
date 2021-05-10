@@ -10,6 +10,8 @@ import { CurrentList } from "../pages/CurrentList";
 import { Lists } from "../pages/Lists";
 
 import colors from "../styles/colors";
+import { CardProducts } from "../components/CardProducts";
+import { ListLayout } from "../components/ListLayout";
 
 const tabRoutes = createBottomTabNavigator();
 
@@ -84,6 +86,19 @@ const TabRoutes: React.FC = () => (
             size={size}
             color={color}
           />
+        ),
+      }}
+    />
+    {
+      //Esse route abaixo é só pra testar o
+      //card do produto
+    }
+    <tabRoutes.Screen
+      name="Layout padrao"
+      component={ListLayout}
+      options={{
+        tabBarIcon: ({ size, color }) => (
+          <MaterialIcons name="kitchen" size={size} color={color} />
         ),
       }}
     />
