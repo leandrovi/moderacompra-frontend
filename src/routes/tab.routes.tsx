@@ -8,13 +8,13 @@ import { NewList } from "../pages/NewList";
 import { CreateFirstList } from "../pages/CreateFirstList";
 import { CurrentList } from "../pages/CurrentList";
 import { Lists } from "../pages/Lists";
-import { EditList } from "../pages/EditList";
+import { EditFirstList } from "../pages/EditFirstList";
 
 import colors from "../styles/colors";
 
 const tabRoutes = createBottomTabNavigator();
 
-let isFirstList = true;
+let isFirstList = false;
 
 const TabRoutes: React.FC = () => (
   <tabRoutes.Navigator
@@ -90,15 +90,15 @@ const TabRoutes: React.FC = () => (
     />
 
     {/* Below is only for testing purposes */}
-    <tabRoutes.Screen
+    {/* <tabRoutes.Screen
       name="Test"
-      component={EditList}
+      component={EditFirstList}
       options={{
         tabBarIcon: ({ size, color }) => (
           <MaterialIcons name="kitchen" size={size} color={color} />
         ),
       }}
-    />
+    /> */}
   </tabRoutes.Navigator>
 );
 
