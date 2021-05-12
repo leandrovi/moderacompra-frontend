@@ -8,10 +8,9 @@ import { NewList } from "../pages/NewList";
 import { CreateFirstList } from "../pages/CreateFirstList";
 import { CurrentList } from "../pages/CurrentList";
 import { Lists } from "../pages/Lists";
+import { EditList } from "../pages/EditList";
 
 import colors from "../styles/colors";
-import { CardProducts } from "../components/CardProducts";
-import { ListLayout } from "../components/ListLayout";
 
 const tabRoutes = createBottomTabNavigator();
 
@@ -89,13 +88,11 @@ const TabRoutes: React.FC = () => (
         ),
       }}
     />
-    {
-      //Esse route abaixo é só pra testar o
-      //card do produto
-    }
+
+    {/* Below is only for testing purposes */}
     <tabRoutes.Screen
-      name="Layout padrao"
-      component={ListLayout}
+      name="Test"
+      component={EditList}
       options={{
         tabBarIcon: ({ size, color }) => (
           <MaterialIcons name="kitchen" size={size} color={color} />

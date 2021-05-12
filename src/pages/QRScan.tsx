@@ -55,7 +55,7 @@ export function QRScan() {
 
   function handleBarCodeScanned({ data, bounds }: BarCodeScannerResult) {
     if (!scanned) {
-      const { origin } = (bounds as {}) as BarCodeBounds;
+      const { origin } = bounds as {} as BarCodeBounds;
       const { x, y } = origin;
 
       if (
@@ -65,6 +65,8 @@ export function QRScan() {
         y <= viewMinY + finderHeight / 2
       ) {
         // TO-DO: show alert case data is empty
+        console.log(data);
+
         setScanned(true);
         navigation.navigate("EditList", { url: data });
       }

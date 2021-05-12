@@ -37,64 +37,65 @@ interface EditListParams {
   },
 ]; */
 
-// O QR Code vai chamar a tela EditList com a url
-// A edit list vai mandar uma requisicao POST para o backend com a url
-// Enquanto ainda nao temos os dados da api, a gente mostra uma animacao carregando
-// Quando acabar a request da api, a gente mostra a tela com os dados
-
 let listWithSt: ListWithStatus;
+
 export function EditList() {
   const routes = useRoute();
 
   const [loading, setLoading] = useState(false);
-  const [nfResponse, setNfResponse] = useState<ListScrap>();
+  // const [nfResponse, setNfResponse] = useState<ListScrap>();
 
   //const listWithStatus:ListWithStatus={} as ListWithStatus;
 
-  const { url } = routes.params as EditListParams;
+  // const { url } = routes.params as EditListParams;
+  const url =
+    "https://www.nfce.fazenda.sp.gov.br/qrcode?p=35210560479680001090651050001600861259534072|2|1|1|643A34EFA0FBBF88AC6EFBB323D294586190ACAF";
+
+  // Only for testing purposes
+  // if (!url) {
+  //   url = "";
+  // }
   //listWithStatus.status=StatusEnum.pending;
 
   useEffect(() => {
-    // chamar a api com a url
     async function fetchScrappedProducts() {
       setLoading(true);
+
       try {
         const response = await api.post("/scrap", {
           url_nfce: url,
         });
 
-        console.log(response.data);
-        setNfResponse(response.data);
+        console.log("API Response:", response.data);
+        // setNfResponse(response.data);
 
-        listWithSt.status = StatusEnum.pending;
-        listWithSt.listProdScrap = nfResponse as ListScrap;
+        // listWithSt.status = StatusEnum.pending;
+        // listWithSt.listProdScrap = nfResponse as ListScrap;
       } catch (error) {
-        console.log("Algo deu errado");
-        //console.log(error);
+        console.log(error);
       } finally {
-        //finaliza o loading
         setLoading(false);
       }
     }
 
-    //fetchScrappedProducts();
+    fetchScrappedProducts();
   }, []);
 
   return (
     <ScrollView style={styles.container}>
-      <ListLayout listWithStatus={listWithSt} />
+      <Text>Tela de edição de lista</Text>
+      {/* <ListLayout listWithStatus={listWithSt} /> */}
+
       <View style={styles.lists}></View>
-      {/* <ListLayout /> */}
+
       <View style={styles.lists}>
         {loading ? (
           <Text>Carregando...</Text>
         ) : (
-          nfResponse?.products.map((prod) => (
-            <CardProducts product={prod} key={prod.code} />
-            /* <Text key={prod.code}>
-            Produto: {prod.description} - Preço: {prod.unitary_value}
-          </Text> */
-          ))
+          <Text>Já carregado!</Text>
+          // nfResponse?.products.map((prod) => (
+          //   <CardProducts product={prod} key={prod.code} />
+          // ))
         )}
       </View>
     </ScrollView>
