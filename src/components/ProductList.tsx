@@ -1,6 +1,9 @@
 import React from "react";
 import { StyleSheet, View, Text, FlatList } from "react-native";
 
+// Hooks
+import { useProductQuantities } from "../hooks/useProductQuantities";
+
 // Styles
 import colors from "../styles/colors";
 import fonts from "../styles/fonts";
@@ -8,11 +11,9 @@ import fonts from "../styles/fonts";
 // Interfaces
 import { Product } from "../interfaces";
 
-interface ProductListProps {
-  products: Product[];
-}
+export function ProductList() {
+  const { productQuantities } = useProductQuantities();
 
-export function ProductList({ products }: ProductListProps) {
   return (
     <View style={styles.container}>
       <View style={styles.listHeader}>
@@ -20,19 +21,26 @@ export function ProductList({ products }: ProductListProps) {
         <Text>add manualmente</Text>
       </View>
 
-      {/* <FlatList
-        data={products}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => }
-      /> */}
+      <FlatList
+        data={productQuantities}
+        keyExtractor={(item) => {
+          if (item.product?.name) {
+            return item.product?.name;
+          } else {
+            return String(Math.random() * 100 + 1);
+          }
+        }}
+        renderItem={({ item }) => <Text>{item.product?.name}</Text>}
+        showsVerticalScrollIndicator={false}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     width: "100%",
+    marginTop: 40,
   },
 
   listHeader: {

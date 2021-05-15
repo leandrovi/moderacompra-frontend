@@ -1,37 +1,26 @@
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { createContext, ReactNode, useContext, useState } from "react";
+
 import { List } from "../interfaces";
 
 interface ListsProviderProps {
   children: ReactNode;
 }
 
-interface ListsContextDate {
-  lists: List[];
+interface ListsContextData {
+  currentList: List;
 }
 
-const ListsContext = createContext<ListsContextDate>({} as ListsContextDate);
+const ListsContext = createContext<ListsContextData>({} as ListsContextData);
 
-// export function ListsProvider({ children }: ListsProviderProps) {
-//   const [lists, setLists] = useState<List[]>([]);
+export function ListsProvider({ children }: ListsProviderProps) {
+  const [currentList, setCurrentList] = useState<List>({} as List);
 
-//   useEffect(() => {
-//     async function fetchLists() {
-
-//     }
-//   }, []);
-
-//   return (
-//     <ListsContext.Provider value={{  }}>
-//       {children}
-//     </ListsContext.Provider>
-//   );
-// }
+  return (
+    <ListsContext.Provider value={{ currentList }}>
+      {children}
+    </ListsContext.Provider>
+  );
+}
 
 export function useLists() {
   const context = useContext(ListsContext);
