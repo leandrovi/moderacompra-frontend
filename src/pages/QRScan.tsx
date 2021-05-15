@@ -64,7 +64,7 @@ export function QRScan() {
         x <= viewMinX + finderWidth / 2 &&
         y <= viewMinY + finderHeight / 2
       ) {
-        // TO-DO: show alert case data is empty
+        // TO-DO: show alert in case data is empty
         console.log(data);
 
         setScanned(true);

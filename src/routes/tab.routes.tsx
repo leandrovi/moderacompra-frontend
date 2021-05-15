@@ -14,7 +14,7 @@ import colors from "../styles/colors";
 
 const tabRoutes = createBottomTabNavigator();
 
-let isFirstList = false;
+let isFirstList = true;
 
 const TabRoutes: React.FC = () => (
   <tabRoutes.Navigator
@@ -90,7 +90,7 @@ const TabRoutes: React.FC = () => (
     />
 
     {/* Below is only for testing purposes */}
-    <tabRoutes.Screen
+    {/* <tabRoutes.Screen
       name="Test"
       component={EditFirstList}
       options={{
@@ -98,7 +98,7 @@ const TabRoutes: React.FC = () => (
           <MaterialIcons name="kitchen" size={size} color={color} />
         ),
       }}
-    />
+    /> */}
   </tabRoutes.Navigator>
 );
 

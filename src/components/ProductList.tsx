@@ -10,6 +10,7 @@ import fonts from "../styles/fonts";
 
 // Interfaces
 import { Product } from "../interfaces";
+import { ProductCard } from "./ProductCard";
 
 export function ProductList() {
   const { productQuantities } = useProductQuantities();
@@ -30,7 +31,8 @@ export function ProductList() {
             return String(Math.random() * 100 + 1);
           }
         }}
-        renderItem={({ item }) => <Text>{item.product?.name}</Text>}
+        // renderItem={({ item }) => <Text>{item.product?.name}</Text>}
+        renderItem={({ item }) => <ProductCard productQuantity={item} />}
         showsVerticalScrollIndicator={false}
       />
     </View>
