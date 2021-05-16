@@ -5,7 +5,7 @@ import axios from "axios";
 const baseURL = "https://api-moderacompra.herokuapp.com"; // prod
 
 const hardCodedToken =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjIwOTNhNTA2LTZhNDMtNGQzNi04YWY0LWUzYWEzNTc3YTY3MiIsImlhdCI6MTYyMDc4MTM2MCwiZXhwIjoxNjIxMzg2MTYwfQ.R2LrVk2Njb6QK1GWTC0joTuhdoOZS0AVD8TnR7uZcg8";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJkNzljZmFhLWEzNGQtNDI2MC1hNmZjLWJmNTY0NTExZmFkNCIsImlhdCI6MTYyMTEyNzc0NywiZXhwIjoxNjIyNDIzNzQ3fQ.6EBtCLewThOYQ427abhuAEz53Q3GvxXy6JMSAFQHMuo";
 
 const api = axios.create({
   baseURL: baseURL,
