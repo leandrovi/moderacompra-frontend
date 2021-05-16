@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "moderacompra",
+    "name": "Modera Compra",
     "slug": "moderacompra",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -17,7 +17,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "backgroundColor": "#FFFFFF"
     },
     "android": {
       "adaptiveIcon": {
@@ -27,6 +28,9 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "description": "Um aplicativo que irá transformar totalmente a sua experiência de compras no mercado",
+    "githubUrl": "https://github.com/leandrovi/moderacompra-frontend",
+    "userInterfaceStyle": "light"
   }
 }

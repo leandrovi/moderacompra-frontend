@@ -1,17 +1,28 @@
-﻿import { LinearGradient } from "expo-linear-gradient";
-import React, { useState } from "react";
-import { StyleSheet, View, Text, Image, Platform } from "react-native";
-import { TextInput } from "react-native-gesture-handler";
-import { ProductScrap } from "../entities/ScrapEntity";
-import colors from "../styles/colors";
-import fonts from "../styles/fonts";
+﻿import React, { useState } from "react";
+import { LinearGradient } from "expo-linear-gradient";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Image,
+  Platform,
+  TextInput,
+} from "react-native";
+
+// Assets
 import EditIcon from "../assets/svgs/EditIcon";
 
-interface Props {
-  product?: ProductScrap;
+// Styles
+import colors from "../styles/colors";
+import fonts from "../styles/fonts";
+
+import { ProductQuantity } from "../interfaces";
+
+interface ProductCardProps {
+  productQuantity: ProductQuantity;
 }
 
-export function CardProducts({ product }: Props) {
+export function ProductCard({ productQuantity }: ProductCardProps) {
   const backgroundColors = ["#F6F6F6", "#EEEEEE"];
   //const textColor = colors.darkGray;
 
@@ -27,12 +38,17 @@ export function CardProducts({ product }: Props) {
         {/* <MaterialIcons name="edit" /> */}
         <View style={styles.description}>
           {/* <EditIcon style={styles.icon} /> */}
-          <TextInput style={styles.text} value={`  ${product?.description}`} />
+          <TextInput
+            style={styles.text}
+            value={productQuantity?.product?.name}
+          />
         </View>
 
         <View style={styles.posNum}>
-          <Text style={styles.numb}>{product?.quantity}</Text>
-          <Text style={styles.unity}>{` ${product?.unity_measure}`}</Text>
+          <Text style={styles.quantity}>
+            {productQuantity?.initial_quantity}
+          </Text>
+          <Text style={styles.unity}>{productQuantity?.unity.description}</Text>
         </View>
       </LinearGradient>
     </View>
@@ -77,7 +93,7 @@ const styles = StyleSheet.create({
     color: colors.darkGray,
   },
 
-  numb: {
+  quantity: {
     fontSize: 24,
     fontFamily: fonts.text,
     color: colors.darkGray,

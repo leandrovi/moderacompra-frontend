@@ -1,30 +1,31 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet, View, Text, ScrollView } from "react-native";
+
+// Hooks
+import { useProductQuantities } from "../hooks/useProductQuantities";
 
 // Components
-import { Header } from "../components/Header";
+import { Header } from "./Header";
 import { ListInfo } from "./ListInfo";
+import { ProductList } from "./ProductList";
 
 // Styles
 import colors from "../styles/colors";
 import fonts from "../styles/fonts";
 
 // Interfaces
-import { StatusEnum, User } from "../interfaces";
-import { ListWithStatus } from "../entities/ListWithStatus";
+import { User, Status, ProductQuantity } from "../interfaces";
 
-interface Props {
-  listWithStatus: ListWithStatus;
-}
-
-export function ListLayout({ listWithStatus }: Props) {
+export function ListLayout() {
   const [isFirstList, setIsFirstList] = useState(true);
   const [isNewList, setIsNewList] = useState(false);
-  const [status, setStatus] = useState<StatusEnum | null>(StatusEnum.open);
+  const [status, setStatus] = useState<Status>({ description: "pendente" });
 
   const [headerFirstLine, setHeaderFirstLine] = useState<string>("");
   const [headerSecondLine, setHeaderSecondLine] = useState<string>("");
-  const actualDate = `${new Date().getDate()}/${new Date().getMonth()}/${new Date().getFullYear()}`;
+  const currentDate = `${new Date().getDate()}/${new Date().getMonth()}/${new Date().getFullYear()}`;
+
+  const { count } = useProductQuantities();
 
   function handleHeaderTitle() {
     if (isFirstList) {
@@ -48,31 +49,30 @@ export function ListLayout({ listWithStatus }: Props) {
       <View style={styles.details}>
         <Header firstLine={headerFirstLine} secondLine={headerSecondLine} />
       </View>
+
       <View style={styles.details}>
         <View style={styles.detailLine}>
-          <Text style={styles.detailTitle}>Data:</Text>
-          <Text style={styles.detailValue}>{actualDate.toString()}</Text>
+          <Text style={styles.detailTitle}>Data: </Text>
+          <Text style={styles.detailValue}>{currentDate.toString()}</Text>
         </View>
 
         <View style={styles.detailLine}>
-          <Text style={styles.detailTitle}>Itens:</Text>
-          <Text style={styles.detailValue}>
-            {listWithStatus?.listProdScrap.products.length}
-          </Text>
+          <Text style={styles.detailTitle}>Itens: </Text>
+          <Text style={styles.detailValue}>{count}</Text>
         </View>
       </View>
 
-      <ListInfo status={status} />
+      <ListInfo status={status.description} />
 
-      {/* <ProductList /> */}
+      <ProductList />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     alignItems: "center",
+    width: "100%",
     //justifyContent: "space-between",
     //paddingHorizontal: 32,
   },

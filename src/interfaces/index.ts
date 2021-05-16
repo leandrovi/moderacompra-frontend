@@ -1,46 +1,56 @@
 export interface Behaviour {
-  id: string;
+  id?: string;
   description: string;
 }
 
 export interface User {
-  id: string;
+  id?: string;
   name: string;
   email: string;
   password_hash: string;
   created_at: Date;
   updated_at: Date;
-  id_behaviour: string;
+  behaviour?: Behaviour;
 }
 
-export enum StatusEnum {
-  pending = "pending",
-  open = "open",
-  closed = "closed",
-}
-
-export interface List {
-  id: string;
-  user_id: string;
-  status: StatusEnum;
-}
-
-export interface Product {
-  id: string;
-  name: string;
+export interface Status {
+  id?: string;
+  description: "pendente" | "em aberto" | "finalizada";
 }
 
 export interface Unity {
-  id: string;
+  id?: string;
   description: string;
 }
 
-export interface ProductsQuantity {
-  id: string;
-  list_id: string;
-  product_id: string;
+export interface Product {
+  id?: string;
+  name: string;
+}
+
+export interface ProductQuantity {
+  id?: string;
+  list_id?: string;
   initial_quantity: number;
   final_quantity?: number;
   suggestion_quantity?: number;
-  id_unity: string;
+  unity: Unity;
+  product?: Product;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface List {
+  id?: string;
+  user_id: string;
+  status: Status;
+  product_quantities?: ProductQuantity[];
+}
+
+export interface ScrappedProduct {
+  description: string;
+  code: string;
+  quantity: number;
+  unity_measure: string;
+  unitary_value: number;
 }

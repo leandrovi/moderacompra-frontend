@@ -3,17 +3,14 @@ import React, { useEffect, useState } from "react";
 // Components
 import { Info } from "./Info";
 
-// Interfaces
-import { StatusEnum } from "../interfaces";
-
+// Interface
 interface ListInfoProps {
-  status?: StatusEnum | null;
+  status?: "pendente" | "em aberto" | "finalizada";
 }
 
 export function ListInfo({ status }: ListInfoProps) {
-  const [infoType, setInfoType] = useState<
-    "green" | "orange" | "purple" | "blue"
-  >("orange");
+  const [infoType, setInfoType] =
+    useState<"green" | "orange" | "purple" | "blue">("orange");
   const [text, setText] = useState("");
 
   useEffect(() => {
@@ -22,20 +19,16 @@ export function ListInfo({ status }: ListInfoProps) {
       setText("Sua lista ficará pendente até a confirmação após a compra");
     }
 
-    if (status === "pending") {
+    if (status === "pendente") {
       setInfoType("purple");
       setText("Sua lista ficará pendente até você voltar do mercado");
     }
 
-    if (status === "open") {
+    if (status === "em aberto") {
       setInfoType("blue");
       setText("Precisamos que você atualize o que sobrou da última compra");
     }
   }, [infoType]);
 
-  return status !== StatusEnum.closed ? (
-    <Info type={infoType} text={text} />
-  ) : (
-    <></>
-  );
+  return status !== "finalizada" ? <Info type={infoType} text={text} /> : <></>;
 }

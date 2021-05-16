@@ -30,7 +30,6 @@ export function Header({ firstLine, secondLine }: HeaderProps) {
 const styles = StyleSheet.create({
   header: {
     width: "100%",
-    //flex: 1,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
