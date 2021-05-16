@@ -13,6 +13,7 @@ import { EditFirstList } from "../pages/EditFirstList";
 // Styles
 import colors from "../styles/colors";
 import { Platform } from "react-native";
+import { PrivacyPolicy } from "../pages/PrivacyPolicy";
 
 const stackRoutes = createStackNavigator();
 
@@ -34,6 +35,7 @@ const AppRoutes: React.FC = () => (
     />
     <stackRoutes.Screen name="QRScan" component={QRScan} />
     <stackRoutes.Screen name="EditFirstList" component={EditFirstList} />
+    <stackRoutes.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
   </stackRoutes.Navigator>
 );
 

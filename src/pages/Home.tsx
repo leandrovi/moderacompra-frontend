@@ -1,6 +1,14 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Text, Image, Platform } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Image,
+  Platform,
+  TouchableOpacity,
+} from "react-native";
 import { StatusBar } from "expo-status-bar";
+import { useNavigation } from "@react-navigation/native";
 
 // Components
 import { Info } from "../components/Info";
@@ -12,6 +20,7 @@ import fonts from "../styles/fonts";
 
 export function Home() {
   const [isFirstList, setIsFirstList] = useState(true);
+  const navigation = useNavigation();
 
   return (
     <View style={styles.container}>
@@ -31,6 +40,10 @@ export function Home() {
           </>
         )}
       </View>
+
+      <TouchableOpacity onPress={() => navigation.navigate("PrivacyPolicy")}>
+        <Text style={styles.privacy}>Privacy Policy</Text>
+      </TouchableOpacity>
 
       <StatusBar
         style={Platform.OS === "android" ? "light" : "dark"}
@@ -55,5 +68,12 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     marginBottom: 26,
     fontFamily: fonts.textLight,
+  },
+
+  privacy: {
+    fontSize: 12,
+    lineHeight: 18,
+    fontFamily: fonts.textLight,
+    alignSelf: "flex-end",
   },
 });
