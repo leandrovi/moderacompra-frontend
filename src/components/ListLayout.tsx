@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { StyleSheet, View, Text, ScrollView } from "react-native";
 
-// Hooks
+// Hooks and Utils
 import { useProductQuantities } from "../hooks/useProductQuantities";
+import { getCurrentDate } from "../utils/getCurrentDate";
 
 // Components
 import { Header } from "./Header";
@@ -23,7 +24,6 @@ export function ListLayout() {
 
   const [headerFirstLine, setHeaderFirstLine] = useState<string>("");
   const [headerSecondLine, setHeaderSecondLine] = useState<string>("");
-  const currentDate = `${new Date().getDate()}/${new Date().getMonth()}/${new Date().getFullYear()}`;
 
   const { count } = useProductQuantities();
 
@@ -46,14 +46,12 @@ export function ListLayout() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.details}>
-        <Header firstLine={headerFirstLine} secondLine={headerSecondLine} />
-      </View>
+      <Header firstLine={headerFirstLine} secondLine={headerSecondLine} />
 
       <View style={styles.details}>
         <View style={styles.detailLine}>
           <Text style={styles.detailTitle}>Data: </Text>
-          <Text style={styles.detailValue}>{currentDate.toString()}</Text>
+          <Text style={styles.detailValue}>{getCurrentDate()}</Text>
         </View>
 
         <View style={styles.detailLine}>
@@ -73,13 +71,11 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "center",
     width: "100%",
-    //justifyContent: "space-between",
-    //paddingHorizontal: 32,
   },
 
   details: {
     width: "100%",
-    paddingBottom: 26,
+    paddingBottom: 21,
   },
 
   detailLine: {

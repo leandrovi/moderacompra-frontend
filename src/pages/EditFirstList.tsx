@@ -31,9 +31,9 @@ export function EditFirstList() {
 
   const [isLoading, setIsLoading] = useState(true);
 
-  const { url } = routes.params as EditFirstListParams;
-  // const url =
-  //   "https://www.nfce.fazenda.sp.gov.br/qrcode?p=35210560479680001090651050001600861259534072|2|1|1|643A34EFA0FBBF88AC6EFBB323D294586190ACAF";
+  // const { url } = routes.params as EditFirstListParams;
+  const url =
+    "https://www.nfce.fazenda.sp.gov.br/qrcode?p=35210560479680001090651050001600861259534072|2|1|1|643A34EFA0FBBF88AC6EFBB323D294586190ACAF";
 
   useEffect(() => {
     async function fetchScrappedProducts() {

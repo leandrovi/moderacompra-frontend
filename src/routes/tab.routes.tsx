@@ -90,7 +90,7 @@ const TabRoutes: React.FC = () => (
     />
 
     {/* Below is only for testing purposes */}
-    {/* <tabRoutes.Screen
+    <tabRoutes.Screen
       name="Test"
       component={EditFirstList}
       options={{
@@ -98,7 +98,7 @@ const TabRoutes: React.FC = () => (
           <MaterialIcons name="kitchen" size={size} color={color} />
         ),
       }}
-    /> */}
+    />
   </tabRoutes.Navigator>
 );
 
