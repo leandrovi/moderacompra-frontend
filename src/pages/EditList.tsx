@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { StyleSheet, View, Text, ScrollView } from "react-native";
-import { useRoute } from "@react-navigation/core";
+import { useNavigation, useRoute } from "@react-navigation/core";
+import { getStatusBarHeight } from "react-native-iphone-x-helper";
 
 // Hooks
 import { useProducts } from "../hooks/useProducts";
@@ -11,20 +12,23 @@ import api from "../services/api";
 
 // Components
 import { Loader } from "../components/Loader";
-import { ListLayout } from "../components/ListLayout";
+import { ListInfo } from "../components/ListInfo";
+import { Button } from "../components/Button";
 
 // styles
 import colors from "../styles/colors";
 
 // Interfaces
 import { ScrappedProduct } from "../interfaces";
+import { ProductList } from "../components/ProductList";
 
 interface EditFirstListParams {
   url: string;
 }
 
-export function EditFirstList() {
+export function EditList() {
   const routes = useRoute();
+  const navigation = useNavigation();
 
   const { updateFirstListProducts } = useProducts();
   const { updateFirstListProductQuantities } = useProductQuantities();
@@ -60,20 +64,60 @@ export function EditFirstList() {
     fetchScrappedProducts();
   }, []);
 
+  function handleOnCancel() {
+    navigation.goBack();
+  }
+
+  function handleOnSave() {
+    // Make API Call
+    navigation.navigate("Home");
+  }
+
   if (isLoading) {
     return <Loader />;
   }
 
   return (
     <View style={styles.container}>
-      <ListLayout />
+      <View style={styles.header}>
+        <ListInfo />
+
+        <View style={styles.buttonsWrapper}>
+          <Button type="secondary" text="CANCELAR" onPress={handleOnCancel} />
+          <View style={styles.divider} />
+          <Button type="primary" text="SALVAR" onPress={handleOnSave} />
+        </View>
+      </View>
+
+      <ProductList />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     paddingHorizontal: 32,
     backgroundColor: colors.white,
+  },
+
+  header: {
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingTop: 30,
+    marginTop: getStatusBarHeight(),
+  },
+
+  buttonsWrapper: {
+    flexDirection: "row",
+    width: "100%",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginVertical: 24,
+  },
+
+  divider: {
+    width: 22,
   },
 });

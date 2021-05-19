@@ -8,7 +8,6 @@ import { NewList } from "../pages/NewList";
 import { CreateFirstList } from "../pages/CreateFirstList";
 import { CurrentList } from "../pages/CurrentList";
 import { Lists } from "../pages/Lists";
-import { EditFirstList } from "../pages/EditFirstList";
 
 import colors from "../styles/colors";
 
@@ -85,17 +84,6 @@ const TabRoutes: React.FC = () => (
             size={size}
             color={color}
           />
-        ),
-      }}
-    />
-
-    {/* Below is only for testing purposes */}
-    <tabRoutes.Screen
-      name="Test"
-      component={EditFirstList}
-      options={{
-        tabBarIcon: ({ size, color }) => (
-          <MaterialIcons name="kitchen" size={size} color={color} />
         ),
       }}
     />

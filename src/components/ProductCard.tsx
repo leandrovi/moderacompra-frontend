@@ -7,6 +7,8 @@ import {
   Image,
   Platform,
   TextInput,
+  TouchableOpacity,
+  TouchableOpacityProps,
 } from "react-native";
 
 // Assets
@@ -18,21 +20,21 @@ import fonts from "../styles/fonts";
 
 import { ProductQuantity } from "../interfaces";
 
-interface ProductCardProps {
+interface ProductCardProps extends TouchableOpacityProps {
   productQuantity: ProductQuantity;
 }
 
-export function ProductCard({ productQuantity }: ProductCardProps) {
-  const backgroundColors = ["#F6F6F6", "#EEEEEE"];
+export function ProductCard({ productQuantity, ...rest }: ProductCardProps) {
+  const backgroundColors = ["#F7F7F7", "#EEEEEE"];
   //const textColor = colors.darkGray;
 
   return (
-    <View style={styles.container}>
+    <TouchableOpacity style={styles.container} {...rest}>
       <LinearGradient
         colors={backgroundColors}
-        start={{ x: 0.5, y: 1 }}
-        end={{ x: 0.55, y: 0 }}
-        locations={[0.2258, 0.804]}
+        start={{ x: -1, y: 1.1 }}
+        end={{ x: 1.2, y: -0.1 }}
+        locations={[0, 1]}
         style={styles.background}
       >
         {/* <MaterialIcons name="edit" /> */}
@@ -51,16 +53,15 @@ export function ProductCard({ productQuantity }: ProductCardProps) {
           <Text style={styles.unity}>{productQuantity?.unity.description}</Text>
         </View>
       </LinearGradient>
-    </View>
+    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    //width: "100%",
-    flex: 1,
-    margin: 5,
+    marginBottom: 10,
   },
+
   posNum: {
     flexDirection: "row",
     alignItems: "center",
@@ -98,6 +99,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.text,
     color: colors.darkGray,
   },
+
   unity: {
     fontSize: 13,
     fontFamily: fonts.text,
