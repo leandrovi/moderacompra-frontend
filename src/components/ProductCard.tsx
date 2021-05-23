@@ -1,5 +1,6 @@
 ﻿import React, { useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   StyleSheet,
   View,
@@ -7,6 +8,8 @@ import {
   Image,
   Platform,
   TextInput,
+  TouchableOpacity,
+  TouchableOpacityProps,
 } from "react-native";
 
 // Assets
@@ -18,89 +21,95 @@ import fonts from "../styles/fonts";
 
 import { ProductQuantity } from "../interfaces";
 
-interface ProductCardProps {
+interface ProductCardProps extends TouchableOpacityProps {
   productQuantity: ProductQuantity;
 }
 
-export function ProductCard({ productQuantity }: ProductCardProps) {
-  const backgroundColors = ["#F6F6F6", "#EEEEEE"];
+export function ProductCard({ productQuantity, ...rest }: ProductCardProps) {
+  const backgroundColors = ["#F7F7F7", "#EEEEEE"];
   //const textColor = colors.darkGray;
 
   return (
-    <View style={styles.container}>
+    <TouchableOpacity style={styles.container} {...rest}>
       <LinearGradient
         colors={backgroundColors}
-        start={{ x: 0.5, y: 1 }}
-        end={{ x: 0.55, y: 0 }}
-        locations={[0.2258, 0.804]}
+        start={{ x: -1, y: 1.1 }}
+        end={{ x: 1.2, y: -0.1 }}
+        locations={[0, 1]}
         style={styles.background}
       >
-        {/* <MaterialIcons name="edit" /> */}
-        <View style={styles.description}>
-          {/* <EditIcon style={styles.icon} /> */}
-          <TextInput
-            style={styles.text}
-            value={productQuantity?.product?.name}
+        <View style={styles.descriptionWrapper}>
+          <MaterialCommunityIcons
+            name="pencil-outline"
+            size={22}
+            color={colors.darkGray}
+            style={{ marginRight: 6 }}
           />
+          <Text style={styles.description} numberOfLines={1}>
+            {productQuantity?.product?.name}
+          </Text>
         </View>
 
-        <View style={styles.posNum}>
+        <View style={styles.quantityWrapper}>
           <Text style={styles.quantity}>
             {productQuantity?.initial_quantity}
           </Text>
-          <Text style={styles.unity}>{productQuantity?.unity.description}</Text>
+          <Text style={styles.unity}>
+            {productQuantity?.unity.description.toLowerCase()}
+          </Text>
         </View>
       </LinearGradient>
-    </View>
+    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    //width: "100%",
-    flex: 1,
-    margin: 5,
-  },
-  posNum: {
-    flexDirection: "row",
-    alignItems: "center",
-    //flex: 1,
+    marginBottom: 10,
   },
 
-  description: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  icon: {
-    width: 15,
-    height: 15,
-  },
   background: {
     width: "100%",
     height: 80,
-    paddingHorizontal: 21,
+    paddingHorizontal: 20,
     borderRadius: 20,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
 
-  text: {
+  descriptionWrapper: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  description: {
     fontSize: 16,
     lineHeight: 24,
-    fontFamily: fonts.text,
+    fontFamily: fonts.semiBold,
+    fontWeight: "600",
     color: colors.darkGray,
+  },
+
+  quantityWrapper: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "center",
+    marginLeft: 40,
   },
 
   quantity: {
     fontSize: 24,
-    fontFamily: fonts.text,
+    fontFamily: fonts.textLight,
     color: colors.darkGray,
   },
+
   unity: {
     fontSize: 13,
-    fontFamily: fonts.text,
+    lineHeight: 26,
+    fontFamily: fonts.textLight,
     color: colors.lightGray,
+    marginLeft: 3,
   },
 });

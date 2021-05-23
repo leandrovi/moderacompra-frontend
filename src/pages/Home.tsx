@@ -45,6 +45,10 @@ export function Home() {
         <Text style={styles.privacy}>Privacy Policy</Text>
       </TouchableOpacity>
 
+      <TouchableOpacity onPress={() => navigation.navigate("EditList")}>
+        <Text>TESTE</Text>
+      </TouchableOpacity>
+
       <StatusBar
         style={Platform.OS === "android" ? "light" : "dark"}
         backgroundColor={colors.darkGray}

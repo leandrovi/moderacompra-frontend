@@ -6,6 +6,7 @@ import {
   useFonts,
   Nunito_300Light,
   Nunito_400Regular,
+  Nunito_600SemiBold,
   Nunito_700Bold,
 } from "@expo-google-fonts/nunito";
 

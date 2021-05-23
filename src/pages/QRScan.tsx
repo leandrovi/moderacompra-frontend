@@ -46,11 +46,12 @@ export function QRScan() {
   }
 
   useEffect(() => {
+    setScanned(false);
     handleBarCodePermissions();
   }, []);
 
   useFocusEffect(() => {
-    handleBarCodePermissions();
+    setScanned(false);
   });
 
   function handleBarCodeScanned({ data, bounds }: BarCodeScannerResult) {
