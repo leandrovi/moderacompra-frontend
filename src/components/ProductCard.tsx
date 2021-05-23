@@ -1,33 +1,68 @@
-﻿import React, { useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import {
   StyleSheet,
   View,
   Text,
-  Image,
-  Platform,
-  TextInput,
   TouchableOpacity,
   TouchableOpacityProps,
 } from "react-native";
-
-// Assets
-import EditIcon from "../assets/svgs/EditIcon";
 
 // Styles
 import colors from "../styles/colors";
 import fonts from "../styles/fonts";
 
-import { ProductQuantity } from "../interfaces";
+import { ProductQuantity, Status } from "../interfaces";
 
 interface ProductCardProps extends TouchableOpacityProps {
+  isEditMode?: boolean;
+  status: Status;
   productQuantity: ProductQuantity;
 }
 
-export function ProductCard({ productQuantity, ...rest }: ProductCardProps) {
+export function ProductCard({
+  isEditMode = false,
+  status,
+  productQuantity,
+  ...rest
+}: ProductCardProps) {
   const backgroundColors = ["#F7F7F7", "#EEEEEE"];
-  //const textColor = colors.darkGray;
+
+  function renderCardIcon() {
+    if (isEditMode) {
+      return (
+        <MaterialCommunityIcons
+          name="pencil-outline"
+          size={22}
+          color={colors.darkGray}
+          style={{ marginRight: 6 }}
+        />
+      );
+    }
+
+    if (status.description !== "finalizada") {
+      if (!productQuantity.checked) {
+        return (
+          <MaterialIcons
+            name="check-box-outline-blank"
+            size={22}
+            color={colors.darkGray}
+            style={{ marginRight: 6 }}
+          />
+        );
+      } else {
+        return (
+          <MaterialIcons
+            name="check-box"
+            size={22}
+            color={colors.orange}
+            style={{ marginRight: 6 }}
+          />
+        );
+      }
+    }
+  }
 
   return (
     <TouchableOpacity style={styles.container} {...rest}>
@@ -39,12 +74,8 @@ export function ProductCard({ productQuantity, ...rest }: ProductCardProps) {
         style={styles.background}
       >
         <View style={styles.descriptionWrapper}>
-          <MaterialCommunityIcons
-            name="pencil-outline"
-            size={22}
-            color={colors.darkGray}
-            style={{ marginRight: 6 }}
-          />
+          {renderCardIcon()}
+
           <Text style={styles.description} numberOfLines={1}>
             {productQuantity?.product?.name}
           </Text>

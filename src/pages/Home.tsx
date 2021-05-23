@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -13,14 +13,39 @@ import { useNavigation } from "@react-navigation/native";
 // Components
 import { Info } from "../components/Info";
 import { Header } from "../components/Header";
+import { Loader } from "../components/Loader";
 
 // Styles
 import colors from "../styles/colors";
 import fonts from "../styles/fonts";
+import { useLists } from "../hooks/useLists";
 
 export function Home() {
-  const [isFirstList, setIsFirstList] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [isFirstList, setIsFirstList] = useState(false);
+
   const navigation = useNavigation();
+
+  const { setListsHistory, currentList } = useLists();
+
+  useEffect(() => {
+    async function fetchListsHistory() {
+      await setListsHistory();
+      setLoading(false);
+    }
+
+    fetchListsHistory();
+  }, []);
+
+  useEffect(() => {
+    !currentList ? setIsFirstList(true) : setIsFirstList(false);
+
+    console.log("Current list doesn't exist?", !currentList);
+  }, [currentList]);
+
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <View style={styles.container}>

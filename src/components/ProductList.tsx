@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -8,33 +8,68 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { getBottomSpace } from "react-native-iphone-x-helper";
+import { useNavigation } from "@react-navigation/core";
 
 // Hooks
 import { useProductQuantities } from "../hooks/useProductQuantities";
+import { useLists } from "../hooks/useLists";
 
 // Styles
 import colors from "../styles/colors";
 import fonts from "../styles/fonts";
 
 // Interfaces
-import { Status } from "../interfaces";
+import { ProductQuantity, Status } from "../interfaces";
 import { ProductCard } from "./ProductCard";
 
-export function ProductList() {
+interface ProductListProps {
+  isEditMode?: boolean;
+}
+
+export function ProductList({ isEditMode = false }: ProductListProps) {
+  const navigation = useNavigation();
   const [status, setStatus] = useState<Status>({ description: "pendente" });
 
-  const addManuallyAvailable =
-    status.description === "pendente" || !status.description;
+  const { productQuantities, updateProductQuantityCheck } =
+    useProductQuantities();
 
-  const { productQuantities } = useProductQuantities();
+  const { currentList } = useLists();
+
+  function handleProductQuantitySelect(productQuantity: ProductQuantity) {
+    if (isEditMode) {
+      navigation.navigate("ProductDetails", { mode: "edit", productQuantity });
+    } else {
+      if (status.description !== "finalizada") {
+        updateProductQuantityCheck({
+          checked: !productQuantity.checked,
+          name: productQuantity.product?.name as string,
+        });
+      }
+    }
+  }
+
+  function handleAddNewProduct() {
+    navigation.navigate("ProductDetails", { mode: "add", productQuantity: {} });
+  }
+
+  useEffect(() => {
+    if (!currentList) {
+      setStatus({ description: "pendente" });
+    } else {
+      setStatus({ description: currentList.status.description });
+    }
+  }, []);
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Produtos</Text>
 
-        {addManuallyAvailable && (
-          <TouchableOpacity style={styles.addWrapper}>
+        {isEditMode && (
+          <TouchableOpacity
+            style={styles.addWrapper}
+            onPress={handleAddNewProduct}
+          >
             <Text style={styles.add}>add manualmente</Text>
 
             <MaterialIcons
@@ -51,7 +86,14 @@ export function ProductList() {
         keyExtractor={(item) =>
           item.product?.id ? item.product.id : String(Math.random() * 100 + 1)
         }
-        renderItem={({ item }) => <ProductCard productQuantity={item} />}
+        renderItem={({ item }) => (
+          <ProductCard
+            isEditMode={isEditMode}
+            status={status}
+            productQuantity={item}
+            onPress={() => handleProductQuantitySelect(item)}
+          />
+        )}
         showsVerticalScrollIndicator={false}
         style={styles.list}
         ListFooterComponent={

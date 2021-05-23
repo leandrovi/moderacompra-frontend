@@ -16,6 +16,7 @@ import { ProductQuantitiesProvider } from "./src/hooks/useProductQuantities";
 
 // Routes
 import Routes from "./src/routes";
+import { ListsProvider } from "./src/hooks/useLists";
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -30,10 +31,12 @@ export default function App() {
   }
 
   return (
-    <ProductsProvider>
-      <ProductQuantitiesProvider>
-        <Routes />
-      </ProductQuantitiesProvider>
-    </ProductsProvider>
+    <ListsProvider>
+      <ProductsProvider>
+        <ProductQuantitiesProvider>
+          <Routes />
+        </ProductQuantitiesProvider>
+      </ProductsProvider>
+    </ListsProvider>
   );
 }

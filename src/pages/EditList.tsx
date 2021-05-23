@@ -6,6 +6,7 @@ import { getStatusBarHeight } from "react-native-iphone-x-helper";
 // Hooks
 import { useProducts } from "../hooks/useProducts";
 import { useProductQuantities } from "../hooks/useProductQuantities";
+import { useLists } from "../hooks/useLists";
 
 // Services
 import api from "../services/api";
@@ -27,11 +28,14 @@ interface EditFirstListParams {
 }
 
 export function EditList() {
+  const [] = useState();
+
   const routes = useRoute();
   const navigation = useNavigation();
 
   const { updateFirstListProducts } = useProducts();
   const { updateFirstListProductQuantities } = useProductQuantities();
+  const { currentList } = useLists();
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -39,29 +43,31 @@ export function EditList() {
   const url =
     "https://www.nfce.fazenda.sp.gov.br/qrcode?p=35210560479680001090651050001600861259534072|2|1|1|643A34EFA0FBBF88AC6EFBB323D294586190ACAF";
 
-  useEffect(() => {
-    async function fetchScrappedProducts() {
-      try {
-        // First gets the scrapped products
-        const response = await api.post("/scrap", {
-          url_nfce: url,
-        });
+  async function fetchScrappedProducts() {
+    try {
+      const response = await api.post("/scrap", { url_nfce: url });
+      const scrappedProducts: ScrappedProduct[] = response.data.products;
 
-        const scrappedProducts: ScrappedProduct[] = response.data.products;
-
-        // Then sets a state with all the products locally
-        updateFirstListProducts(scrappedProducts);
-
-        // Finally sets a state with all the product_quantities locally
-        updateFirstListProductQuantities(scrappedProducts);
-      } catch (error) {
-        console.log(error);
-      }
-
+      updateFirstListProducts(scrappedProducts);
+      updateFirstListProductQuantities(scrappedProducts);
+    } catch (error) {
+      console.log(error);
+    } finally {
       setIsLoading(false);
     }
+  }
 
-    fetchScrappedProducts();
+  useEffect(() => {
+    if (!currentList) {
+      fetchScrappedProducts();
+    } else {
+      /**
+       * TODO: show the results of the processing for new list,
+       * when the backend calcultes the suggestions
+       * fetchSuggestedProducts();
+       */
+      setIsLoading(false);
+    }
   }, []);
 
   function handleOnCancel() {
@@ -89,7 +95,7 @@ export function EditList() {
         </View>
       </View>
 
-      <ProductList />
+      <ProductList isEditMode={true} />
     </View>
   );
 }

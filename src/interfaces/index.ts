@@ -38,6 +38,7 @@ export interface ProductQuantity {
   product?: Product;
   createdAt?: Date;
   updatedAt?: Date;
+  checked?: boolean;
 }
 
 export interface List {
