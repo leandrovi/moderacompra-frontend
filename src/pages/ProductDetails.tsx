@@ -1,9 +1,20 @@
 import React, { useRef, useState } from "react";
-import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import { useRoute } from "@react-navigation/core";
 import {
   getBottomSpace,
   getStatusBarHeight,
+  isIphoneX,
 } from "react-native-iphone-x-helper";
 import Autocomplete from "react-native-autocomplete-input";
 
@@ -63,82 +74,122 @@ export function ProductDetails() {
   }
 
   async function handleProductSave() {
-    console.log(nameRef.current);
+    console.log(selectedProduct);
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.backContainer}>
-          <BackButton />
-        </View>
+    <ScrollView
+      contentContainerStyle={styles.main}
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="always"
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <KeyboardAvoidingView
+          contentContainerStyle={[
+            styles.container,
+            isIphoneX() && { paddingBottom: getBottomSpace() },
+          ]}
+          style={styles.container}
+          behavior="position"
+        >
+          <View style={styles.contentWrapper}>
+            <View style={styles.header}>
+              <View style={styles.backContainer}>
+                <BackButton />
+              </View>
 
-        <Text style={styles.title}>
-          {mode === "add" ? "Adicionar" : "Editar"}
-        </Text>
-        <Text style={styles.subtitle}>Produto</Text>
-      </View>
+              <Text style={styles.title}>
+                {mode === "add" ? "Adicionar" : "Editar"}
+              </Text>
+              <Text style={styles.subtitle}>Produto</Text>
+            </View>
 
-      <View style={styles.infoContainer}>
-        <Info
-          type="orange"
-          text="Escolha um nome existente, ou defina um novo nome"
-        />
-      </View>
+            <View style={styles.infoContainer}>
+              <Info
+                type="orange"
+                text="Escolha um nome existente, ou defina um novo nome"
+              />
+            </View>
 
-      <View style={styles.content}>
-        <View style={styles.quantity}>
-          <Text style={styles.contentTitle}>Quantidade</Text>
-        </View>
+            <View style={styles.content}>
+              <View style={styles.quantity}>
+                <Text style={styles.contentTitle}>Quantidade</Text>
+                <Text>
+                  Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+                  Culpa exercitationem nesciunt temporibus aliquid unde
+                  accusamus. Velit eum laudantium distinctio aut possimus
+                  debitis nobis dolore adipisci, sint impedit accusamus quam
+                  fugiat!
+                </Text>
+              </View>
 
-        <View style={styles.name}>
-          <Text style={styles.contentTitle}>Nome</Text>
+              <View style={styles.name}>
+                <Text style={styles.contentTitle}>Nome</Text>
 
-          <Autocomplete
-            autoCapitalize="words"
-            autoCorrect={true}
-            data={filteredProducts}
-            defaultValue={selectedProduct}
-            onChangeText={(text) => filterProduct(text)}
-            placeholder="Digite o nome do produto"
-            flatListProps={{
-              keyboardShouldPersistTaps: "always",
-              keyExtractor: (name: string) => name,
-              renderItem: ({ item }) => (
-                <TouchableOpacity
-                  onPress={() => handleAutoCompleteOnPress(item)}
-                  style={{ backgroundColor: "red" }}
-                >
-                  <Text style={styles.nameSuggestion}>{item}</Text>
-                </TouchableOpacity>
-              ),
-            }}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                onPress={() => handleAutoCompleteOnPress(item)}
-                style={{ backgroundColor: "red" }}
-              >
-                <Text style={styles.nameSuggestion}>{item}</Text>
-              </TouchableOpacity>
-            )}
-            listStyle={{ backgroundColor: "red" }}
-          />
-        </View>
+                <View style={styles.autoCompleteWrapper}>
+                  <View style={styles.autoCompleteContainer}>
+                    <Autocomplete
+                      autoCapitalize="words"
+                      autoCorrect={true}
+                      data={filteredProducts}
+                      defaultValue={selectedProduct}
+                      onChangeText={(text) => filterProduct(text)}
+                      placeholder="Digite o nome do produto"
+                      style={styles.nameInput}
+                      inputContainerStyle={styles.nameInputcontainer}
+                      listContainerStyle={styles.nameInputcontainer}
+                      flatListProps={{
+                        keyExtractor: (name: string) => name,
+                        renderItem: ({ item }) => (
+                          <TouchableOpacity
+                            onPress={() => handleAutoCompleteOnPress(item)}
+                            style={{ backgroundColor: "red" }}
+                          >
+                            <Text style={styles.nameSuggestion}>{item}</Text>
+                          </TouchableOpacity>
+                        ),
+                      }}
+                      renderItem={({ item }) => (
+                        <TouchableOpacity
+                          onPress={() => handleAutoCompleteOnPress(item)}
+                          style={{ backgroundColor: "red" }}
+                        >
+                          <Text style={styles.nameSuggestion}>{item}</Text>
+                        </TouchableOpacity>
+                      )}
+                      listStyle={{ backgroundColor: "red" }}
+                    />
+                  </View>
+                </View>
+              </View>
 
-        <View style={styles.buttonWrapper}>
-          <Button text="SALVAR" onPress={handleProductSave} />
-        </View>
-      </View>
-    </View>
+              <View style={styles.buttonWrapper}>
+                <Button text="SALVAR" onPress={handleProductSave} />
+              </View>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </TouchableWithoutFeedback>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  main: {
+    flexGrow: 1,
+    backgroundColor: colors.white,
+  },
+
   container: {
     flex: 1,
     justifyContent: "space-between",
-    backgroundColor: colors.white,
-    paddingBottom: getBottomSpace() + 10,
+    // backgroundColor: colors.white,
+    paddingBottom: 10,
+  },
+
+  contentWrapper: {
+    flex: 1,
+    justifyContent: "space-between",
   },
 
   header: {
@@ -196,6 +247,7 @@ const styles = StyleSheet.create({
 
   name: {
     width: "100%",
+    marginBottom: 44,
   },
 
   contentTitle: {
@@ -205,16 +257,56 @@ const styles = StyleSheet.create({
     color: colors.darkGray,
   },
 
-  nameInput: {},
+  autoCompleteWrapper: {
+    width: "100%",
+    position: "relative",
+  },
+
+  autoCompleteContainer: {
+    flex: 1,
+    left: 0,
+    position: "absolute",
+    right: 0,
+    top: 0,
+    zIndex: 10,
+  },
+
+  nameInput: {
+    fontFamily: fonts.text,
+    color: colors.darkGray,
+    fontSize: 16,
+    lineHeight: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    backgroundColor: "#f8f8f8",
+  },
+
+  nameInputcontainer: {
+    borderRadius: 4,
+    borderColor: colors.white,
+    shadowColor: colors.darkGray,
+    shadowOffset: {
+      height: 0,
+      width: 0,
+    },
+    shadowRadius: 5,
+    shadowOpacity: 0.2,
+    width: "100%",
+    zIndex: 10,
+  },
 
   nameSuggestion: {
-    fontSize: 15,
-    paddingTop: 5,
-    paddingBottom: 5,
-    margin: 2,
+    fontFamily: fonts.text,
+    color: colors.darkGray,
+    fontSize: 16,
+    lineHeight: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    backgroundColor: "#f8f8f8",
   },
 
   buttonWrapper: {
     flexDirection: "row",
+    zIndex: 0,
   },
 });
