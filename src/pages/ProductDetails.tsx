@@ -34,7 +34,7 @@ import colors from "../styles/colors";
 import fonts from "../styles/fonts";
 
 // Interfaces
-import { ProductQuantity } from "../interfaces";
+import { Product, ProductQuantity } from "../interfaces";
 
 interface EditProductParams {
   mode: "add" | "edit";
@@ -67,7 +67,7 @@ export function ProductDetails() {
 
   const [hideSuggestions, setHideSuggestions] = useState(false);
 
-  const { currentListProducts } = useProducts();
+  const { currentListProducts, products } = useProducts();
   const { updateSingleProduct } = useProductQuantities();
 
   function handleTouchableWithoutFeedback() {
@@ -81,9 +81,17 @@ export function ProductDetails() {
   function filterProduct(query: string) {
     if (query) {
       const regex = new RegExp(`${query.trim()}`, "i");
-      const productFilter = currentListProducts.filter(
-        (product) => product.name.search(regex) >= 0
-      );
+      let productFilter: Product[];
+
+      if (products.length > 0) {
+        productFilter = products.filter(
+          (product) => product.name.search(regex) >= 0
+        );
+      } else {
+        productFilter = currentListProducts.filter(
+          (product) => product.name.search(regex) >= 0
+        );
+      }
 
       const productFilterNames = productFilter.map((item) => item.name);
 

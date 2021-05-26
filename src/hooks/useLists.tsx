@@ -14,6 +14,7 @@ interface ListsContextData {
   currentList: List | null;
   initializeNewList: (list: List) => void;
   setListsHistory: (offset?: number) => Promise<void>;
+  createList: (isFirstList?: boolean) => Promise<void>;
 }
 
 const ListsContext = createContext<ListsContextData>({} as ListsContextData);
@@ -42,9 +43,31 @@ export function ListsProvider({ children }: ListsProviderProps) {
     }
   };
 
+  const createList = async (isFirstList: boolean = false) => {
+    try {
+      const response = await api.post("/lists", {
+        isFirstList,
+      });
+
+      console.log("List Created:", response.data);
+
+      const list = response.data;
+
+      setCurrentList(list);
+    } catch (err) {
+      throw Error("Erro ao criar lista");
+    }
+  };
+
   return (
     <ListsContext.Provider
-      value={{ newList, currentList, initializeNewList, setListsHistory }}
+      value={{
+        newList,
+        currentList,
+        initializeNewList,
+        setListsHistory,
+        createList,
+      }}
     >
       {children}
     </ListsContext.Provider>

@@ -22,11 +22,15 @@ interface ProductsProviderProps {
 interface ProductsContextData {
   products: Product[];
   currentListProducts: Product[];
+
   updateFirstListProducts: (scrappedProducts: ScrappedProduct[]) => void;
+
   addProductToCurrentList: ({
     oldProduct,
     newProduct,
   }: AddProductToCurrentList) => void;
+
+  removeProductFromCurrentList: (product: Product) => void;
 }
 
 const ProductsContext = createContext<ProductsContextData>(
@@ -64,10 +68,12 @@ export function ProductsProvider({ children }: ProductsProviderProps) {
     const updatedProducts = [...products];
     const updatedCurrentProducts = [...currentListProducts];
 
+    // We check if is a new product, not persisted in the database yet
     const newProductExists = updatedProducts.find(
       (item) => item.name === newProduct.name
     );
 
+    // If the old product exists, is an update.. if not, is a new product
     const currentProductExists = updatedCurrentProducts.find(
       (item) => item.name === oldProduct.name
     );
@@ -80,8 +86,19 @@ export function ProductsProvider({ children }: ProductsProviderProps) {
     if (currentProductExists) {
       const index = updatedCurrentProducts.indexOf(currentProductExists);
       updatedCurrentProducts[index] = newProduct;
-      setCurrentListProducts(updatedCurrentProducts);
+    } else {
+      updatedCurrentProducts.push(newProduct);
     }
+
+    setCurrentListProducts(updatedCurrentProducts);
+  };
+
+  const removeProductFromCurrentList = (product: Product) => {
+    const updatedCurrentProducts = [...currentListProducts];
+    updatedCurrentProducts.splice(updatedCurrentProducts.indexOf(product));
+    setCurrentListProducts(updatedCurrentProducts);
+
+    console.log("Product Removed:", product);
   };
 
   return (
@@ -91,6 +108,7 @@ export function ProductsProvider({ children }: ProductsProviderProps) {
         currentListProducts,
         updateFirstListProducts,
         addProductToCurrentList,
+        removeProductFromCurrentList,
       }}
     >
       {children}

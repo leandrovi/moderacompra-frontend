@@ -8,7 +8,7 @@ import React, {
 
 import { useProducts } from "./useProducts";
 
-import { Product, ProductQuantity, ScrappedProduct } from "../interfaces";
+import { ProductQuantity, ScrappedProduct } from "../interfaces";
 
 interface UpdateProductQuantityAmount {
   amount: number;
@@ -55,6 +55,8 @@ interface ProductQuantitiesContextData {
     quantity,
     unity,
   }: UpdateSingleProduct) => void;
+
+  removeProductQuantity: (productQuantity: ProductQuantity) => void;
 }
 
 const ProductQuantitiesContext = createContext<ProductQuantitiesContextData>(
@@ -69,7 +71,8 @@ export function ProductQuantitiesProvider({
   );
   const [count, setCount] = useState(0);
 
-  const { addProductToCurrentList } = useProducts();
+  const { addProductToCurrentList, removeProductFromCurrentList } =
+    useProducts();
 
   const updateFirstListProductQuantities = (
     scrappedProducts: ScrappedProduct[]
@@ -144,6 +147,7 @@ export function ProductQuantitiesProvider({
       (item) => item.product?.name === initialName
     );
 
+    // If the product already exists in our list, we update it
     if (productQuantityExists) {
       const index = updatedProductQuantities.indexOf(productQuantityExists);
 
@@ -151,15 +155,6 @@ export function ProductQuantitiesProvider({
         productQuantityExists.product = {
           name: selectedName,
         };
-
-        addProductToCurrentList({
-          oldProduct: {
-            name: initialName,
-          },
-          newProduct: {
-            name: selectedName,
-          },
-        });
       }
 
       productQuantityExists.initial_quantity = quantity;
@@ -169,6 +164,7 @@ export function ProductQuantitiesProvider({
 
       updatedProductQuantities[index] = productQuantityExists;
     } else {
+      // If not, we push it to the list
       updatedProductQuantities.push({
         initial_quantity: quantity,
         unity: {
@@ -181,7 +177,37 @@ export function ProductQuantitiesProvider({
       });
     }
 
+    // Either we update it or push it, we update our products state
+    addProductToCurrentList({
+      oldProduct: {
+        name: initialName,
+      },
+      newProduct: {
+        name: selectedName,
+      },
+    });
+
     setProductQuantities(updatedProductQuantities);
+  };
+
+  const removeProductQuantity = (productQuantity: ProductQuantity) => {
+    const updatedProductQuantities = [...productQuantities];
+
+    const productQuantityExists = updatedProductQuantities.find(
+      (item) => item.product?.name === productQuantity.product?.name
+    );
+
+    const index = updatedProductQuantities.indexOf(productQuantity);
+
+    if (productQuantityExists) {
+      updatedProductQuantities.splice(index, 1);
+    }
+
+    setProductQuantities(updatedProductQuantities);
+
+    if (productQuantity.product) {
+      removeProductFromCurrentList(productQuantity.product);
+    }
   };
 
   return (
@@ -193,6 +219,7 @@ export function ProductQuantitiesProvider({
         updateProductQuantityAmount,
         updateProductQuantityCheck,
         updateSingleProduct,
+        removeProductQuantity,
       }}
     >
       {children}
