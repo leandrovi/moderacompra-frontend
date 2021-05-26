@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   View,
@@ -8,22 +8,26 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   KeyboardAvoidingView,
+  TextInput,
   Platform,
 } from "react-native";
-import { useRoute } from "@react-navigation/core";
 import {
   getBottomSpace,
   getStatusBarHeight,
   isIphoneX,
 } from "react-native-iphone-x-helper";
+import { useNavigation, useRoute } from "@react-navigation/core";
 import Autocomplete from "react-native-autocomplete-input";
+import { Picker } from "@react-native-picker/picker";
 
 // Hooks
 import { useProducts } from "../hooks/useProducts";
+import { useProductQuantities } from "../hooks/useProductQuantities";
 
 // Components
 import { BackButton } from "../components/BackButton";
 import { Button } from "../components/Button";
+import { Info } from "../components/Info";
 
 // Styles
 import colors from "../styles/colors";
@@ -31,27 +35,48 @@ import fonts from "../styles/fonts";
 
 // Interfaces
 import { Product, ProductQuantity } from "../interfaces";
-import { Info } from "../components/Info";
 
 interface EditProductParams {
   mode: "add" | "edit";
   productQuantity: ProductQuantity;
 }
 
-interface ProductDetailsProps {}
-
 export function ProductDetails() {
   const route = useRoute();
+  const navigation = useNavigation();
+
   const { mode, productQuantity } = route.params as EditProductParams;
 
-  const [quantity, setQuantity] = useState(0);
+  const [quantity, setQuantity] = useState(
+    productQuantity.initial_quantity ?? productQuantity.suggestion_quantity
+  );
+
+  const [unity, setUnity] = useState(
+    productQuantity.unity.description.toLowerCase()
+  );
+
   const [filteredProducts, setFilteredProducts] = useState<string[]>([]);
+
   const [selectedProduct, setSelectedProduct] = useState<string>(
     productQuantity.product?.name as string
   );
 
+  const [initialProduct, setInitialProduct] = useState<string>(
+    productQuantity.product?.name as string
+  );
+
+  const [hideSuggestions, setHideSuggestions] = useState(false);
+
   const { currentListProducts } = useProducts();
-  const nameRef = useRef<Text>(null);
+  const { updateSingleProduct } = useProductQuantities();
+
+  function handleTouchableWithoutFeedback() {
+    Keyboard.dismiss;
+
+    if (selectedProduct && !hideSuggestions) {
+      setHideSuggestions(true);
+    }
+  }
 
   function filterProduct(query: string) {
     if (query) {
@@ -62,7 +87,12 @@ export function ProductDetails() {
 
       const productFilterNames = productFilter.map((item) => item.name);
 
+      if (hideSuggestions) {
+        setHideSuggestions(false);
+      }
+
       setFilteredProducts(productFilterNames);
+      setSelectedProduct(query);
     } else {
       setFilteredProducts([]);
     }
@@ -73,8 +103,23 @@ export function ProductDetails() {
     setFilteredProducts([]);
   }
 
+  function handleQuantityChange(text: string) {
+    setQuantity(Number(text));
+  }
+
+  function handleUnityChange(value: string) {
+    setUnity(value);
+  }
+
   async function handleProductSave() {
-    console.log(selectedProduct);
+    updateSingleProduct({
+      initialName: initialProduct,
+      selectedName: selectedProduct,
+      quantity,
+      unity,
+    });
+
+    navigation.goBack();
   }
 
   return (
@@ -83,7 +128,7 @@ export function ProductDetails() {
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="always"
     >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <TouchableWithoutFeedback onPress={handleTouchableWithoutFeedback}>
         <KeyboardAvoidingView
           contentContainerStyle={[
             styles.container,
@@ -114,13 +159,44 @@ export function ProductDetails() {
             <View style={styles.content}>
               <View style={styles.quantity}>
                 <Text style={styles.contentTitle}>Quantidade</Text>
-                <Text>
-                  Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-                  Culpa exercitationem nesciunt temporibus aliquid unde
-                  accusamus. Velit eum laudantium distinctio aut possimus
-                  debitis nobis dolore adipisci, sint impedit accusamus quam
-                  fugiat!
-                </Text>
+
+                <View style={styles.quantityDetails}>
+                  <TextInput
+                    defaultValue={String(quantity)}
+                    onChangeText={handleQuantityChange}
+                    keyboardType="decimal-pad"
+                    style={[styles.nameInput, styles.quantityInput]}
+                  />
+
+                  <Picker
+                    selectedValue={unity}
+                    onValueChange={handleUnityChange}
+                    style={[
+                      {
+                        fontSize: 16,
+                        width: "20%",
+                      },
+                      Platform.OS === "android" && {
+                        backgroundColor: colors.darkWhite,
+                        elevation: 4,
+                        borderRadius: 10,
+                      },
+                    ]}
+                    itemStyle={[
+                      {
+                        fontSize: 16,
+                        fontFamily: fonts.text,
+                        color: colors.darkGray,
+                      },
+                      Platform.OS === "ios" && {
+                        height: 90,
+                      },
+                    ]}
+                  >
+                    <Picker.Item label="un" value="un" />
+                    <Picker.Item label="kg" value="kg" />
+                  </Picker>
+                </View>
               </View>
 
               <View style={styles.name}>
@@ -138,6 +214,7 @@ export function ProductDetails() {
                       style={styles.nameInput}
                       inputContainerStyle={styles.nameInputcontainer}
                       listContainerStyle={styles.nameInputcontainer}
+                      hideResults={hideSuggestions}
                       flatListProps={{
                         keyExtractor: (name: string) => name,
                         renderItem: ({ item }) => (
@@ -245,6 +322,28 @@ const styles = StyleSheet.create({
     width: "100%",
   },
 
+  quantityDetails: {
+    flexDirection: "row",
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  quantityInput: {
+    borderRadius: 4,
+    borderColor: colors.white,
+    shadowColor: colors.darkGray,
+    shadowOffset: {
+      height: 0,
+      width: 0,
+    },
+    shadowRadius: 5,
+    shadowOpacity: 0.2,
+    elevation: 3,
+    width: "50%",
+    marginRight: 20,
+  },
+
   name: {
     width: "100%",
     marginBottom: 44,
@@ -255,6 +354,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     lineHeight: 32,
     color: colors.darkGray,
+    marginBottom: 20,
   },
 
   autoCompleteWrapper: {
@@ -291,6 +391,7 @@ const styles = StyleSheet.create({
     },
     shadowRadius: 5,
     shadowOpacity: 0.2,
+    elevation: 3,
     width: "100%",
     zIndex: 10,
   },

@@ -33,8 +33,9 @@ export function EditList() {
   const routes = useRoute();
   const navigation = useNavigation();
 
-  const { updateFirstListProducts } = useProducts();
-  const { updateFirstListProductQuantities } = useProductQuantities();
+  const { updateFirstListProducts, currentListProducts } = useProducts();
+  const { updateFirstListProductQuantities, productQuantities } =
+    useProductQuantities();
   const { currentList } = useLists();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -63,7 +64,7 @@ export function EditList() {
     } else {
       /**
        * TODO: show the results of the processing for new list,
-       * when the backend calcultes the suggestions
+       * when the backend calculates the suggestions
        * fetchSuggestedProducts();
        */
       setIsLoading(false);
@@ -75,8 +76,9 @@ export function EditList() {
   }
 
   function handleOnSave() {
-    // Make API Call
-    navigation.navigate("Home");
+    console.log("Products:", JSON.stringify(currentListProducts));
+    console.log("Product Quantities:", JSON.stringify(productQuantities));
+    // navigation.navigate("Home");
   }
 
   if (isLoading) {

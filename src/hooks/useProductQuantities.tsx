@@ -24,6 +24,13 @@ interface ProductQuantitiesProviderProps {
   children: ReactNode;
 }
 
+interface UpdateSingleProduct {
+  initialName: string;
+  selectedName: string;
+  quantity: number;
+  unity: string;
+}
+
 interface ProductQuantitiesContextData {
   productQuantities: ProductQuantity[];
   count: number;
@@ -41,6 +48,13 @@ interface ProductQuantitiesContextData {
     checked,
     name,
   }: UpdateProductQuantityCheck) => void;
+
+  updateSingleProduct: ({
+    initialName,
+    selectedName,
+    quantity,
+    unity,
+  }: UpdateSingleProduct) => void;
 }
 
 const ProductQuantitiesContext = createContext<ProductQuantitiesContextData>(
@@ -54,6 +68,8 @@ export function ProductQuantitiesProvider({
     []
   );
   const [count, setCount] = useState(0);
+
+  const { addProductToCurrentList } = useProducts();
 
   const updateFirstListProductQuantities = (
     scrappedProducts: ScrappedProduct[]
@@ -116,6 +132,48 @@ export function ProductQuantitiesProvider({
     }
   };
 
+  const updateSingleProduct = ({
+    initialName,
+    selectedName,
+    quantity,
+    unity,
+  }: UpdateSingleProduct) => {
+    const updatedProductQuantities = [...productQuantities];
+
+    const productQuantityExists = updatedProductQuantities.find(
+      (item) => item.product?.name === initialName
+    );
+
+    if (productQuantityExists) {
+      const index = updatedProductQuantities.indexOf(productQuantityExists);
+
+      if (initialName !== selectedName) {
+        productQuantityExists.product = {
+          name: selectedName,
+        };
+
+        addProductToCurrentList({
+          oldProduct: {
+            name: initialName,
+          },
+          newProduct: {
+            name: selectedName,
+          },
+        });
+      }
+
+      productQuantityExists.initial_quantity = quantity;
+      productQuantityExists.unity = {
+        description: unity,
+      };
+
+      updatedProductQuantities[index] = productQuantityExists;
+      setProductQuantities(updatedProductQuantities);
+    } else {
+      throw Error("Erro na alteração do produto");
+    }
+  };
+
   return (
     <ProductQuantitiesContext.Provider
       value={{
@@ -124,6 +182,7 @@ export function ProductQuantitiesProvider({
         count,
         updateProductQuantityAmount,
         updateProductQuantityCheck,
+        updateSingleProduct,
       }}
     >
       {children}
