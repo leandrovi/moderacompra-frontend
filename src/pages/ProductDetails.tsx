@@ -34,7 +34,7 @@ import colors from "../styles/colors";
 import fonts from "../styles/fonts";
 
 // Interfaces
-import { Product, ProductQuantity } from "../interfaces";
+import { ProductQuantity } from "../interfaces";
 
 interface EditProductParams {
   mode: "add" | "edit";
@@ -48,21 +48,21 @@ export function ProductDetails() {
   const { mode, productQuantity } = route.params as EditProductParams;
 
   const [quantity, setQuantity] = useState(
-    productQuantity.initial_quantity ?? productQuantity.suggestion_quantity
+    productQuantity.initial_quantity ?? productQuantity.suggestion_quantity ?? 0
   );
 
   const [unity, setUnity] = useState(
-    productQuantity.unity.description.toLowerCase()
+    productQuantity.unity?.description.toLowerCase() ?? "un"
   );
 
   const [filteredProducts, setFilteredProducts] = useState<string[]>([]);
 
   const [selectedProduct, setSelectedProduct] = useState<string>(
-    productQuantity.product?.name as string
+    (productQuantity.product?.name as string) ?? ""
   );
 
   const [initialProduct, setInitialProduct] = useState<string>(
-    productQuantity.product?.name as string
+    (productQuantity.product?.name as string) ?? ""
   );
 
   const [hideSuggestions, setHideSuggestions] = useState(false);

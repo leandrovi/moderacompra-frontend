@@ -168,10 +168,20 @@ export function ProductQuantitiesProvider({
       };
 
       updatedProductQuantities[index] = productQuantityExists;
-      setProductQuantities(updatedProductQuantities);
     } else {
-      throw Error("Erro na alteração do produto");
+      updatedProductQuantities.push({
+        initial_quantity: quantity,
+        unity: {
+          description: unity,
+        },
+        product: {
+          name: selectedName,
+        },
+        checked: false,
+      });
     }
+
+    setProductQuantities(updatedProductQuantities);
   };
 
   return (
