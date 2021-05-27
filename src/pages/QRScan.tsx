@@ -69,7 +69,11 @@ export function QRScan() {
         console.log(data);
 
         setScanned(true);
-        navigation.navigate("EditFirstList", { url: data });
+
+        navigation.navigate("EditList", {
+          url: data,
+          listContext: "newListEdition",
+        });
       }
     }
   }

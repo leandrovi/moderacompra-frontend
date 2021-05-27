@@ -15,34 +15,32 @@ import api from "../services/api";
 import { Loader } from "../components/Loader";
 import { ListInfo } from "../components/ListInfo";
 import { Button } from "../components/Button";
+import { ProductList } from "../components/ProductList";
 
 // styles
 import colors from "../styles/colors";
 
 // Interfaces
 import { ScrappedProduct } from "../interfaces";
-import { ProductList } from "../components/ProductList";
 
-interface EditFirstListParams {
-  url: string;
+interface EditListParams {
+  url?: string;
+  listContext: "newListEdition" | "currentListEdition";
 }
 
 export function EditList() {
-  const [] = useState();
-
   const routes = useRoute();
   const navigation = useNavigation();
+  const [isLoading, setIsLoading] = useState(true);
 
+  const { url, listContext } = routes.params as EditListParams;
+
+  const { newList, currentList, isFirstList } = useLists();
   const { updateFirstListProducts, currentListProducts } = useProducts();
   const { updateFirstListProductQuantities, productQuantities } =
     useProductQuantities();
-  const { currentList } = useLists();
 
-  const [isLoading, setIsLoading] = useState(true);
-
-  // const { url } = routes.params as EditFirstListParams;
-  const url =
-    "https://www.nfce.fazenda.sp.gov.br/qrcode?p=35210560479680001090651050001600861259534072|2|1|1|643A34EFA0FBBF88AC6EFBB323D294586190ACAF";
+  const list = listContext === "newListEdition" ? newList : currentList;
 
   async function fetchScrappedProducts() {
     try {
@@ -59,7 +57,7 @@ export function EditList() {
   }
 
   useEffect(() => {
-    if (!currentList) {
+    if (isFirstList) {
       fetchScrappedProducts();
     } else {
       /**
@@ -78,7 +76,15 @@ export function EditList() {
   function handleOnSave() {
     console.log("Products:", JSON.stringify(currentListProducts));
     console.log("Product Quantities:", JSON.stringify(productQuantities));
-    // navigation.navigate("Home");
+
+    if (listContext === "newListEdition") {
+      // POST list
+    }
+
+    // POST products
+    // POST products quantities
+
+    // Navigate to currentList
   }
 
   if (isLoading) {
@@ -97,7 +103,7 @@ export function EditList() {
         </View>
       </View>
 
-      <ProductList isEditMode={true} />
+      <ProductList isEditMode={true} list={list} />
     </View>
   );
 }

@@ -11,8 +11,9 @@ interface ListsProviderProps {
 
 interface ListsContextData {
   newList: List;
-  currentList: List | null;
-  initializeNewList: (list: List) => void;
+  currentList: List;
+  isFirstList: boolean;
+  initializeNewList: () => void;
   setListsHistory: (offset?: number) => Promise<void>;
   createList: (isFirstList?: boolean) => Promise<void>;
 }
@@ -21,11 +22,17 @@ const ListsContext = createContext<ListsContextData>({} as ListsContextData);
 
 export function ListsProvider({ children }: ListsProviderProps) {
   const [newList, setNewList] = useState<List>({} as List);
-  const [currentList, setCurrentList] = useState<List | null>(null);
+  const [currentList, setCurrentList] = useState<List>({} as List);
+  const [isFirstList, setIsFirstList] = useState(false);
   const [lists, setLists] = useState<List[]>([]);
 
-  const initializeNewList = (list: List) => {
-    setNewList(list);
+  // Used to create empty lists before we post to the backend
+  const initializeNewList = () => {
+    setNewList({
+      status: {
+        description: "pendente",
+      },
+    });
   };
 
   const setListsHistory = async (offset: number = 0) => {
@@ -37,12 +44,16 @@ export function ListsProvider({ children }: ListsProviderProps) {
 
     setLists(rows);
 
-    if (count >= 0) {
+    if (count > 0) {
       const mostRecentList = rows[0];
       setCurrentList(mostRecentList);
+      setIsFirstList(false);
+    } else {
+      setIsFirstList(true);
     }
   };
 
+  // Creates the list in the backend
   const createList = async (isFirstList: boolean = false) => {
     try {
       const response = await api.post("/lists", {
@@ -64,6 +75,7 @@ export function ListsProvider({ children }: ListsProviderProps) {
       value={{
         newList,
         currentList,
+        isFirstList,
         initializeNewList,
         setListsHistory,
         createList,

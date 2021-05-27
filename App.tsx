@@ -13,10 +13,10 @@ import {
 // Context Providers
 import { ProductsProvider } from "./src/hooks/useProducts";
 import { ProductQuantitiesProvider } from "./src/hooks/useProductQuantities";
+import { ListsProvider } from "./src/hooks/useLists";
 
 // Routes
 import Routes from "./src/routes";
-import { ListsProvider } from "./src/hooks/useLists";
 
 export default function App() {
   const [fontsLoaded] = useFonts({

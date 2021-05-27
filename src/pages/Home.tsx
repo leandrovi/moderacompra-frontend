@@ -21,31 +21,8 @@ import fonts from "../styles/fonts";
 import { useLists } from "../hooks/useLists";
 
 export function Home() {
-  const [loading, setLoading] = useState(true);
-  const [isFirstList, setIsFirstList] = useState(false);
-
   const navigation = useNavigation();
-
-  const { setListsHistory, currentList } = useLists();
-
-  useEffect(() => {
-    async function fetchListsHistory() {
-      await setListsHistory();
-      setLoading(false);
-    }
-
-    fetchListsHistory();
-  }, []);
-
-  useEffect(() => {
-    !currentList ? setIsFirstList(true) : setIsFirstList(false);
-
-    console.log("Current list doesn't exist?", !currentList);
-  }, [currentList]);
-
-  if (loading) {
-    return <Loader />;
-  }
+  const { isFirstList } = useLists();
 
   return (
     <View style={styles.container}>
@@ -70,7 +47,14 @@ export function Home() {
         <Text style={styles.privacy}>Privacy Policy</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate("EditList")}>
+      <TouchableOpacity
+        onPress={() =>
+          navigation.navigate("EditList", {
+            url: "https://www.nfce.fazenda.sp.gov.br/qrcode?p=35210560479680001090651050001600861259534072|2|1|1|643A34EFA0FBBF88AC6EFBB323D294586190ACAF",
+            listContext: "newListEdition",
+          })
+        }
+      >
         <Text>TESTE</Text>
       </TouchableOpacity>
 

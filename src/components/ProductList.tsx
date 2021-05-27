@@ -14,32 +14,34 @@ import { useNavigation } from "@react-navigation/core";
 import { useProductQuantities } from "../hooks/useProductQuantities";
 import { useLists } from "../hooks/useLists";
 
+// Components
+import { ProductCard } from "./ProductCard";
+
 // Styles
 import colors from "../styles/colors";
 import fonts from "../styles/fonts";
 
 // Interfaces
-import { ProductQuantity, Status } from "../interfaces";
-import { ProductCard } from "./ProductCard";
+import { List, ProductQuantity } from "../interfaces";
 
 interface ProductListProps {
   isEditMode?: boolean;
+  list: List;
 }
 
-export function ProductList({ isEditMode = false }: ProductListProps) {
+export function ProductList({ isEditMode = false, list }: ProductListProps) {
   const navigation = useNavigation();
-  const [status, setStatus] = useState<Status>({ description: "pendente" });
+
+  const { isFirstList } = useLists();
 
   const { productQuantities, updateProductQuantityCheck } =
     useProductQuantities();
-
-  const { currentList } = useLists();
 
   function handleProductQuantitySelect(productQuantity: ProductQuantity) {
     if (isEditMode) {
       navigation.navigate("ProductDetails", { mode: "edit", productQuantity });
     } else {
-      if (status.description !== "finalizada") {
+      if (list.status.description !== "finalizada") {
         updateProductQuantityCheck({
           checked: !productQuantity.checked,
           name: productQuantity.product?.name as string,
@@ -51,14 +53,6 @@ export function ProductList({ isEditMode = false }: ProductListProps) {
   function handleAddNewProduct() {
     navigation.navigate("ProductDetails", { mode: "add", productQuantity: {} });
   }
-
-  useEffect(() => {
-    if (!currentList) {
-      setStatus({ description: "pendente" });
-    } else {
-      setStatus({ description: currentList.status.description });
-    }
-  }, []);
 
   return (
     <View style={styles.container}>
@@ -89,8 +83,8 @@ export function ProductList({ isEditMode = false }: ProductListProps) {
         renderItem={({ item }) => (
           <ProductCard
             isEditMode={isEditMode}
-            status={status}
             productQuantity={item}
+            status={list.status}
             onPress={() => handleProductQuantitySelect(item)}
           />
         )}
