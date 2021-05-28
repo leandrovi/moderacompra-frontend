@@ -69,23 +69,12 @@ export function ProductsProvider({ children }: ProductsProviderProps) {
     oldProduct,
     newProduct,
   }: AddProductToCurrentList) => {
-    const updatedProducts = [...products];
     const updatedCurrentProducts = [...currentListProducts];
-
-    // We check if is a new product, not persisted in the database yet
-    const newProductExists = updatedProducts.find(
-      (item) => item.name === newProduct.name
-    );
 
     // If the old product exists, is an update.. if not, is a new product
     const currentProductExists = updatedCurrentProducts.find(
       (item) => item.name === oldProduct.name
     );
-
-    if (!newProductExists) {
-      updatedProducts.push(newProduct);
-      setProducts(updatedProducts);
-    }
 
     if (currentProductExists) {
       const index = updatedCurrentProducts.indexOf(currentProductExists);
@@ -107,6 +96,7 @@ export function ProductsProvider({ children }: ProductsProviderProps) {
     productQuantities: ProductQuantity[]
   ): Promise<Product[]> => {
     try {
+      console.log("Products:", products);
       const selectedProducts = productQuantities.map(
         (item) => item.product as Product
       );
