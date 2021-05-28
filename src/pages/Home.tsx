@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -8,7 +8,10 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+
+// Hooks
+import { useLists } from "../hooks/useLists";
 
 // Components
 import { Info } from "../components/Info";
@@ -18,11 +21,26 @@ import { Loader } from "../components/Loader";
 // Styles
 import colors from "../styles/colors";
 import fonts from "../styles/fonts";
-import { useLists } from "../hooks/useLists";
 
 export function Home() {
   const navigation = useNavigation();
-  const { isFirstList } = useLists();
+  const [listsLoaded, setListsLoaded] = useState(false);
+  const { setListsHistory, isFirstList } = useLists();
+
+  async function fetchListsHistory() {
+    await setListsHistory();
+    setListsLoaded(true);
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchListsHistory();
+    }, [])
+  );
+
+  if (!listsLoaded) {
+    return <Loader />;
+  }
 
   return (
     <View style={styles.container}>
