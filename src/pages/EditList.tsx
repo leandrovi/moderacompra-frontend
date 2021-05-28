@@ -34,11 +34,13 @@ export function EditList() {
   const [isLoading, setIsLoading] = useState(true);
 
   const { url, listContext } = routes.params as EditListParams;
-
-  const { newList, currentList, isFirstList } = useLists();
-  const { updateFirstListProducts, currentListProducts } = useProducts();
-  const { updateFirstListProductQuantities, productQuantities } =
-    useProductQuantities();
+  const { newList, currentList, isFirstList, createList } = useLists();
+  const { updateFirstListProducts, createBatchProducts } = useProducts();
+  const {
+    updateFirstListProductQuantities,
+    productQuantities,
+    createBatchProductQuantities,
+  } = useProductQuantities();
 
   const list = listContext === "newListEdition" ? newList : currentList;
 
@@ -47,8 +49,11 @@ export function EditList() {
       const response = await api.post("/scrap", { url_nfce: url });
       const scrappedProducts: ScrappedProduct[] = response.data.products;
 
-      updateFirstListProducts(scrappedProducts);
-      updateFirstListProductQuantities(scrappedProducts);
+      updateFirstListProducts([scrappedProducts[0]]);
+      updateFirstListProductQuantities([
+        scrappedProducts[0],
+        scrappedProducts[5],
+      ]);
     } catch (error) {
       console.log(error);
     } finally {
@@ -73,18 +78,28 @@ export function EditList() {
     navigation.goBack();
   }
 
-  function handleOnSave() {
-    console.log("Products:", JSON.stringify(currentListProducts));
-    console.log("Product Quantities:", JSON.stringify(productQuantities));
+  async function handleOnSave() {
+    setIsLoading(true);
 
-    if (listContext === "newListEdition") {
-      // POST list
+    try {
+      const persistedList =
+        listContext === "newListEdition" ? await createList() : list;
+
+      const persistedProducts = await createBatchProducts(productQuantities);
+
+      console.log("Persisted Products:", persistedProducts);
+
+      await createBatchProductQuantities({
+        list: persistedList,
+        products: persistedProducts,
+      });
+
+      navigation.navigate("Home");
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setIsLoading(false);
     }
-
-    // POST products
-    // POST products quantities
-
-    // Navigate to currentList
   }
 
   if (isLoading) {

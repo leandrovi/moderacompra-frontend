@@ -15,7 +15,7 @@ interface ListsContextData {
   isFirstList: boolean;
   initializeNewList: () => void;
   setListsHistory: (offset?: number) => Promise<void>;
-  createList: (isFirstList?: boolean) => Promise<void>;
+  createList: () => Promise<List>;
 }
 
 const ListsContext = createContext<ListsContextData>({} as ListsContextData);
@@ -54,7 +54,7 @@ export function ListsProvider({ children }: ListsProviderProps) {
   };
 
   // Creates the list in the backend
-  const createList = async (isFirstList: boolean = false) => {
+  const createList = async (): Promise<List> => {
     try {
       const response = await api.post("/lists", {
         isFirstList,
@@ -65,7 +65,11 @@ export function ListsProvider({ children }: ListsProviderProps) {
       const list = response.data;
 
       setCurrentList(list);
+      setNewList({} as List);
+
+      return list;
     } catch (err) {
+      console.log(err);
       throw Error("Erro ao criar lista");
     }
   };

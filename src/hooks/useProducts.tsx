@@ -8,7 +8,7 @@ import React, {
 
 import api from "../services/api";
 
-import { Product, ScrappedProduct } from "../interfaces";
+import { Product, ProductQuantity, ScrappedProduct } from "../interfaces";
 
 interface AddProductToCurrentList {
   oldProduct: Product;
@@ -31,6 +31,10 @@ interface ProductsContextData {
   }: AddProductToCurrentList) => void;
 
   removeProductFromCurrentList: (product: Product) => void;
+
+  createBatchProducts: (
+    productQuantities: ProductQuantity[]
+  ) => Promise<Product[]>;
 }
 
 const ProductsContext = createContext<ProductsContextData>(
@@ -42,13 +46,13 @@ export function ProductsProvider({ children }: ProductsProviderProps) {
   const [currentListProducts, setCurrentListProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    async function fetchProducts() {
-      const response = await api.get("products");
-      setProducts(response.data.rows);
-    }
-
     fetchProducts();
   }, []);
+
+  async function fetchProducts() {
+    const response = await api.get("products");
+    setProducts(response.data.rows);
+  }
 
   const updateFirstListProducts = (productList: ScrappedProduct[]) => {
     const products: Product[] = [];
@@ -97,8 +101,49 @@ export function ProductsProvider({ children }: ProductsProviderProps) {
     const updatedCurrentProducts = [...currentListProducts];
     updatedCurrentProducts.splice(updatedCurrentProducts.indexOf(product));
     setCurrentListProducts(updatedCurrentProducts);
+  };
 
-    console.log("Product Removed:", product);
+  const createBatchProducts = async (
+    productQuantities: ProductQuantity[]
+  ): Promise<Product[]> => {
+    try {
+      const selectedProducts = productQuantities.map(
+        (item) => item.product as Product
+      );
+
+      let newProducts: Product[] = [];
+      const existingSelectedProducts: Product[] = [];
+
+      // Verify which products are not persisted yet
+      for (const selectedProduct of selectedProducts) {
+        const productExists = products.find(
+          (item) => item.name === selectedProduct.name
+        );
+
+        if (productExists) {
+          existingSelectedProducts.push(productExists);
+        } else {
+          newProducts.push(selectedProduct);
+        }
+      }
+
+      if (newProducts.length > 0) {
+        const response = await api.post("/products/batch", newProducts);
+        console.log("Products created:", response.data);
+        newProducts = response.data;
+      }
+
+      const updatedSelectedProducts =
+        existingSelectedProducts.concat(newProducts);
+
+      setCurrentListProducts(updatedSelectedProducts);
+      await fetchProducts();
+
+      return updatedSelectedProducts;
+    } catch (err) {
+      console.log(err);
+      throw Error("Erro ao salvar os produtos da lista");
+    }
   };
 
   return (
@@ -109,6 +154,7 @@ export function ProductsProvider({ children }: ProductsProviderProps) {
         updateFirstListProducts,
         addProductToCurrentList,
         removeProductFromCurrentList,
+        createBatchProducts,
       }}
     >
       {children}

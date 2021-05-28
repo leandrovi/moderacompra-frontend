@@ -8,7 +8,14 @@ import React, {
 
 import { useProducts } from "./useProducts";
 
-import { ProductQuantity, ScrappedProduct } from "../interfaces";
+import {
+  List,
+  Product,
+  ProductQuantity,
+  ScrappedProduct,
+  Unity,
+} from "../interfaces";
+import api from "../services/api";
 
 interface UpdateProductQuantityAmount {
   amount: number;
@@ -29,6 +36,19 @@ interface UpdateSingleProduct {
   selectedName: string;
   quantity: number;
   unity: string;
+}
+
+interface CreateBatchProductQuantities {
+  list: List;
+  products: Product[];
+}
+
+interface CreateProductQuantityPayload {
+  list_id: string;
+  product_id: string;
+  name: string;
+  initial_quantity: number;
+  unity: Unity;
 }
 
 interface ProductQuantitiesContextData {
@@ -57,6 +77,11 @@ interface ProductQuantitiesContextData {
   }: UpdateSingleProduct) => void;
 
   removeProductQuantity: (productQuantity: ProductQuantity) => void;
+
+  createBatchProductQuantities: ({
+    list,
+    products,
+  }: CreateBatchProductQuantities) => Promise<void>;
 }
 
 const ProductQuantitiesContext = createContext<ProductQuantitiesContextData>(
@@ -210,6 +235,45 @@ export function ProductQuantitiesProvider({
     }
   };
 
+  const createBatchProductQuantities = async ({
+    list,
+    products,
+  }: CreateBatchProductQuantities) => {
+    try {
+      const currentProductQuantities = [...productQuantities];
+      const createProductQuantitiesPayload: CreateProductQuantityPayload[] = [];
+
+      for (const productQuantity of currentProductQuantities) {
+        const product = products.find(
+          (item) => item.name === productQuantity.product?.name
+        ) as Product;
+
+        const payloadItem: CreateProductQuantityPayload = {
+          list_id: list.id as string,
+          product_id: product.id as string,
+          name: product.name,
+          initial_quantity: productQuantity.initial_quantity,
+          unity: productQuantity.unity,
+        };
+
+        createProductQuantitiesPayload.push(payloadItem);
+      }
+
+      const response = await api.post(
+        "/product-quantities/batch",
+        createProductQuantitiesPayload
+      );
+
+      console.log("Product Quantities created:", response.data);
+
+      setProductQuantities(response.data);
+      setCount(response.data.length);
+    } catch (err) {
+      console.log(err);
+      throw Error("Não foi possível salvar os produtos da lista.");
+    }
+  };
+
   return (
     <ProductQuantitiesContext.Provider
       value={{
@@ -220,6 +284,7 @@ export function ProductQuantitiesProvider({
         updateProductQuantityCheck,
         updateSingleProduct,
         removeProductQuantity,
+        createBatchProductQuantities,
       }}
     >
       {children}
