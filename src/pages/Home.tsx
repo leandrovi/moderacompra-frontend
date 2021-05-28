@@ -12,6 +12,7 @@ import { useFocusEffect, useNavigation } from "@react-navigation/native";
 
 // Hooks
 import { useLists } from "../hooks/useLists";
+import { useProductQuantities } from "../hooks/useProductQuantities";
 
 // Components
 import { Info } from "../components/Info";
@@ -25,7 +26,7 @@ import fonts from "../styles/fonts";
 export function Home() {
   const navigation = useNavigation();
   const [listsLoaded, setListsLoaded] = useState(false);
-  const { setListsHistory, isFirstList } = useLists();
+  const { setListsHistory, isFirstList, currentList } = useLists();
 
   async function fetchListsHistory() {
     await setListsHistory();

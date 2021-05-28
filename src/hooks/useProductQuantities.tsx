@@ -36,6 +36,7 @@ interface UpdateSingleProduct {
   selectedName: string;
   quantity: number;
   unity: string;
+  final_quantity?: number;
 }
 
 interface CreateBatchProductQuantities {
@@ -54,6 +55,7 @@ interface CreateProductQuantityPayload {
 interface ProductQuantitiesContextData {
   productQuantities: ProductQuantity[];
   count: number;
+  allChecked: boolean;
 
   updateFirstListProductQuantities: (
     scrappedProducts: ScrappedProduct[]
@@ -82,6 +84,12 @@ interface ProductQuantitiesContextData {
     list,
     products,
   }: CreateBatchProductQuantities) => Promise<void>;
+
+  fetchProductQuantities: (list_id: string) => Promise<void>;
+
+  generateSuggestions: () => Promise<ProductQuantity[]>;
+
+  populateProductQuantities: (productQttts: ProductQuantity[]) => void;
 }
 
 const ProductQuantitiesContext = createContext<ProductQuantitiesContextData>(
@@ -95,6 +103,7 @@ export function ProductQuantitiesProvider({
     []
   );
   const [count, setCount] = useState(0);
+  const [allChecked, setAllChecked] = useState(false);
 
   const { addProductToCurrentList, removeProductFromCurrentList } =
     useProducts();
@@ -155,8 +164,20 @@ export function ProductQuantitiesProvider({
     if (productQuantityExists) {
       productQuantityExists.checked = checked;
       setProductQuantities(updatedProductQuantities);
+
+      if (checked === false) {
+        setAllChecked(false);
+      }
     } else {
       throw Error("Erro na alteração de quantidade do produto");
+    }
+
+    const uncheckedProducts = updatedProductQuantities.find(
+      (item) => !item.checked
+    );
+
+    if (!uncheckedProducts) {
+      setAllChecked(true);
     }
   };
 
@@ -165,7 +186,9 @@ export function ProductQuantitiesProvider({
     selectedName,
     quantity,
     unity,
+    final_quantity = 0,
   }: UpdateSingleProduct) => {
+    console.log("vou atualizar...");
     const updatedProductQuantities = [...productQuantities];
 
     const productQuantityExists = updatedProductQuantities.find(
@@ -186,8 +209,10 @@ export function ProductQuantitiesProvider({
       productQuantityExists.unity = {
         description: unity,
       };
+      productQuantityExists.final_quantity = final_quantity;
 
       updatedProductQuantities[index] = productQuantityExists;
+      console.log(updatedProductQuantities);
     } else {
       // If not, we push it to the list
       updatedProductQuantities.push({
@@ -199,6 +224,7 @@ export function ProductQuantitiesProvider({
           name: selectedName,
         },
         checked: false,
+        final_quantity,
       });
     }
 
@@ -235,6 +261,13 @@ export function ProductQuantitiesProvider({
     }
   };
 
+  const fetchProductQuantities = async (list_id: string) => {
+    const response = await api.get(
+      `/product-quantities/lists/${list_id}?order=created_at,desc`
+    );
+    setProductQuantities(response.data.rows);
+  };
+
   const createBatchProductQuantities = async ({
     list,
     products,
@@ -264,8 +297,6 @@ export function ProductQuantitiesProvider({
         createProductQuantitiesPayload
       );
 
-      console.log("Product Quantities created:", response.data);
-
       setProductQuantities(response.data);
       setCount(response.data.length);
     } catch (err) {
@@ -274,17 +305,33 @@ export function ProductQuantitiesProvider({
     }
   };
 
+  const generateSuggestions = async (): Promise<ProductQuantity[]> => {
+    const response = await api.put(
+      "/product-quantities/close",
+      productQuantities
+    );
+    return response.data;
+  };
+
+  const populateProductQuantities = async (productQtts: ProductQuantity[]) => {
+    setProductQuantities(productQtts);
+  };
+
   return (
     <ProductQuantitiesContext.Provider
       value={{
         productQuantities,
-        updateFirstListProductQuantities,
         count,
+        allChecked,
+        updateFirstListProductQuantities,
         updateProductQuantityAmount,
         updateProductQuantityCheck,
         updateSingleProduct,
         removeProductQuantity,
         createBatchProductQuantities,
+        fetchProductQuantities,
+        generateSuggestions,
+        populateProductQuantities,
       }}
     >
       {children}

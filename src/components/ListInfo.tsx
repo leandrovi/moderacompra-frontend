@@ -26,7 +26,7 @@ export function ListInfo({ status }: ListInfoProps) {
 
     if (status === "em aberto") {
       setInfoType("blue");
-      setText("Precisamos que você atualize o que sobrou da última compra");
+      setText("Antes da próxima lista, atualize o que sobrou da última compra");
     }
   }, [infoType]);
 

@@ -37,6 +37,8 @@ export function ProductList({ isEditMode = false, list }: ProductListProps) {
   const { productQuantities, updateProductQuantityCheck } =
     useProductQuantities();
 
+  console.log("ProductQuantities:", productQuantities);
+
   function handleProductQuantitySelect(productQuantity: ProductQuantity) {
     if (isEditMode) {
       navigation.navigate("ProductDetails", { mode: "edit", productQuantity });

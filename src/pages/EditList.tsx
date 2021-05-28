@@ -75,7 +75,9 @@ export function EditList() {
   }, []);
 
   function handleOnCancel() {
-    navigation.goBack();
+    listContext === "newListEdition"
+      ? navigation.navigate("Home")
+      : navigation.goBack();
   }
 
   async function handleOnSave() {
@@ -86,8 +88,6 @@ export function EditList() {
         listContext === "newListEdition" ? await createList() : list;
 
       const persistedProducts = await createBatchProducts(productQuantities);
-
-      console.log("Persisted Products:", persistedProducts);
 
       await createBatchProductQuantities({
         list: persistedList,

@@ -16,6 +16,7 @@ interface ListsContextData {
   initializeNewList: () => void;
   setListsHistory: (offset?: number) => Promise<void>;
   createList: () => Promise<List>;
+  finalizeList: () => Promise<void>;
 }
 
 const ListsContext = createContext<ListsContextData>({} as ListsContextData);
@@ -45,8 +46,14 @@ export function ListsProvider({ children }: ListsProviderProps) {
     setLists(rows);
 
     if (count > 0) {
-      const mostRecentList = rows[0];
-      setCurrentList(mostRecentList);
+      const mostRecentList: List = rows[0];
+
+      if (mostRecentList.status.description !== "finalizada") {
+        setCurrentList(mostRecentList);
+      } else {
+        setCurrentList({} as List);
+      }
+
       setIsFirstList(false);
     } else {
       setIsFirstList(true);
@@ -60,8 +67,6 @@ export function ListsProvider({ children }: ListsProviderProps) {
         isFirstList,
       });
 
-      console.log("List Created:", response.data);
-
       const list = response.data;
 
       setCurrentList(list);
@@ -74,6 +79,14 @@ export function ListsProvider({ children }: ListsProviderProps) {
     }
   };
 
+  const finalizeList = async (): Promise<void> => {
+    await api.put(`/lists/${currentList.id}`, {
+      is_status: 3,
+    });
+
+    setCurrentList({} as List);
+  };
+
   return (
     <ListsContext.Provider
       value={{
@@ -83,6 +96,7 @@ export function ListsProvider({ children }: ListsProviderProps) {
         initializeNewList,
         setListsHistory,
         createList,
+        finalizeList,
       }}
     >
       {children}

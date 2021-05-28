@@ -1,17 +1,19 @@
-﻿import React, { useEffect, useState } from "react";
-import { LinearGradient } from "expo-linear-gradient";
+﻿import React from "react";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
-import { StyleSheet, View, Text, Animated } from "react-native";
+import { StyleSheet, View, Text, Animated, Alert } from "react-native";
 import { RectButton, RectButtonProps } from "react-native-gesture-handler";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import { Feather } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/core";
+
+// Hooks
+import { useProductQuantities } from "../hooks/useProductQuantities";
 
 // Styles
 import colors from "../styles/colors";
 import fonts from "../styles/fonts";
 
 import { ProductQuantity, Status } from "../interfaces";
-import { useProductQuantities } from "../hooks/useProductQuantities";
 
 interface ProductCardProps extends RectButtonProps {
   isEditMode?: boolean;
@@ -26,6 +28,7 @@ export function ProductCard({
   ...rest
 }: ProductCardProps) {
   const { removeProductQuantity } = useProductQuantities();
+  const navigation = useNavigation();
 
   function renderCardIcon() {
     if (isEditMode) {
@@ -66,7 +69,57 @@ export function ProductCard({
     removeProductQuantity(productQuantity);
   }
 
-  return (
+  function handleNewQuantityPress() {
+    navigation.navigate("ProductDetails", {
+      mode: "edit",
+      productQuantity,
+      isFinalQuantity: true,
+    });
+  }
+
+  function ProductCardContent() {
+    return (
+      <RectButton style={styles.container} {...rest}>
+        <View style={styles.descriptionWrapper}>
+          {renderCardIcon()}
+
+          <Text style={styles.description} numberOfLines={1}>
+            {productQuantity?.product?.name}
+          </Text>
+        </View>
+
+        <View style={styles.quantityWrapper}>
+          {status.description === "em aberto" ? (
+            <>
+              <RectButton
+                style={styles.newQuantity}
+                onPress={handleNewQuantityPress}
+              >
+                <Text style={styles.input}>
+                  {String(productQuantity.final_quantity) ?? "0"}
+                </Text>
+              </RectButton>
+
+              <Text style={styles.unity}>
+                {productQuantity?.unity.description.toLowerCase()}
+              </Text>
+            </>
+          ) : (
+            <>
+              <Text style={styles.quantity}>
+                {productQuantity?.initial_quantity}
+              </Text>
+              <Text style={styles.unity}>
+                {productQuantity?.unity.description.toLowerCase()}
+              </Text>
+            </>
+          )}
+        </View>
+      </RectButton>
+    );
+  }
+
+  return isEditMode ? (
     <Swipeable
       overshootRight={false}
       renderRightActions={() => (
@@ -79,25 +132,10 @@ export function ProductCard({
         </Animated.View>
       )}
     >
-      <RectButton style={styles.container} {...rest}>
-        <View style={styles.descriptionWrapper}>
-          {renderCardIcon()}
-
-          <Text style={styles.description} numberOfLines={1}>
-            {productQuantity?.product?.name}
-          </Text>
-        </View>
-
-        <View style={styles.quantityWrapper}>
-          <Text style={styles.quantity}>
-            {productQuantity?.initial_quantity}
-          </Text>
-          <Text style={styles.unity}>
-            {productQuantity?.unity.description.toLowerCase()}
-          </Text>
-        </View>
-      </RectButton>
+      <ProductCardContent />
     </Swipeable>
+  ) : (
+    <ProductCardContent />
   );
 }
 
@@ -164,5 +202,21 @@ const styles = StyleSheet.create({
     fontFamily: fonts.textLight,
     color: colors.lightGray,
     marginLeft: 3,
+  },
+
+  newQuantity: {
+    backgroundColor: colors.whiteOrange,
+    marginLeft: 3,
+    marginRight: 5,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+  },
+
+  input: {
+    color: colors.orange,
+    fontSize: 24,
+    fontFamily: fonts.textLight,
+    textAlign: "center",
+    zIndex: 10,
   },
 });

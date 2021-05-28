@@ -96,7 +96,6 @@ export function ProductsProvider({ children }: ProductsProviderProps) {
     productQuantities: ProductQuantity[]
   ): Promise<Product[]> => {
     try {
-      console.log("Products:", products);
       const selectedProducts = productQuantities.map(
         (item) => item.product as Product
       );
@@ -119,7 +118,6 @@ export function ProductsProvider({ children }: ProductsProviderProps) {
 
       if (newProducts.length > 0) {
         const response = await api.post("/products/batch", newProducts);
-        console.log("Products created:", response.data);
         newProducts = response.data;
       }
 

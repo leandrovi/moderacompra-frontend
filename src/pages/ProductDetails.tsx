@@ -39,13 +39,15 @@ import { Product, ProductQuantity } from "../interfaces";
 interface EditProductParams {
   mode: "add" | "edit";
   productQuantity: ProductQuantity;
+  isFinalQuantity?: boolean;
 }
 
 export function ProductDetails() {
   const route = useRoute();
   const navigation = useNavigation();
 
-  const { mode, productQuantity } = route.params as EditProductParams;
+  const { mode, productQuantity, isFinalQuantity } =
+    route.params as EditProductParams;
 
   const [quantity, setQuantity] = useState(
     productQuantity.initial_quantity ?? productQuantity.suggestion_quantity ?? 0
@@ -120,12 +122,23 @@ export function ProductDetails() {
   }
 
   async function handleProductSave() {
-    updateSingleProduct({
-      initialName: initialProduct,
-      selectedName: selectedProduct,
-      quantity,
-      unity,
-    });
+    if (isFinalQuantity) {
+      console.log("Atualizando a final quantity...");
+      updateSingleProduct({
+        initialName: initialProduct,
+        selectedName: initialProduct,
+        quantity: productQuantity.initial_quantity,
+        unity,
+        final_quantity: quantity,
+      });
+    } else {
+      updateSingleProduct({
+        initialName: initialProduct,
+        selectedName: selectedProduct,
+        quantity,
+        unity,
+      });
+    }
 
     navigation.goBack();
   }
@@ -160,17 +173,23 @@ export function ProductDetails() {
             <View style={styles.infoContainer}>
               <Info
                 type="orange"
-                text="Escolha um nome existente, ou defina um novo nome"
+                text={
+                  isFinalQuantity
+                    ? "Atualize a quantidade final do produto, ou seja, o quanto sobrou desde a última compra"
+                    : '"Escolha um nome existente, ou defina um novo nome"'
+                }
               />
             </View>
 
             <View style={styles.content}>
               <View style={styles.quantity}>
-                <Text style={styles.contentTitle}>Quantidade</Text>
+                <Text style={styles.contentTitle}>
+                  {isFinalQuantity ? "Quantidade Final" : "Quantidade"}
+                </Text>
 
                 <View style={styles.quantityDetails}>
                   <TextInput
-                    defaultValue={String(quantity)}
+                    defaultValue={isFinalQuantity ? "0" : String(quantity)}
                     onChangeText={handleQuantityChange}
                     keyboardType="decimal-pad"
                     style={[styles.nameInput, styles.quantityInput]}
@@ -179,6 +198,7 @@ export function ProductDetails() {
                   <Picker
                     selectedValue={unity}
                     onValueChange={handleUnityChange}
+                    enabled={!isFinalQuantity}
                     style={[
                       {
                         fontSize: 16,
@@ -207,46 +227,48 @@ export function ProductDetails() {
                 </View>
               </View>
 
-              <View style={styles.name}>
-                <Text style={styles.contentTitle}>Nome</Text>
+              {!isFinalQuantity && (
+                <View style={styles.name}>
+                  <Text style={styles.contentTitle}>Nome</Text>
 
-                <View style={styles.autoCompleteWrapper}>
-                  <View style={styles.autoCompleteContainer}>
-                    <Autocomplete
-                      autoCapitalize="words"
-                      autoCorrect={true}
-                      data={filteredProducts}
-                      defaultValue={selectedProduct}
-                      onChangeText={(text) => filterProduct(text)}
-                      placeholder="Digite o nome do produto"
-                      style={styles.nameInput}
-                      inputContainerStyle={styles.nameInputcontainer}
-                      listContainerStyle={styles.nameInputcontainer}
-                      hideResults={hideSuggestions}
-                      flatListProps={{
-                        keyExtractor: (name: string) => name,
-                        renderItem: ({ item }) => (
+                  <View style={styles.autoCompleteWrapper}>
+                    <View style={styles.autoCompleteContainer}>
+                      <Autocomplete
+                        autoCapitalize="words"
+                        autoCorrect={true}
+                        data={filteredProducts}
+                        defaultValue={selectedProduct}
+                        onChangeText={(text) => filterProduct(text)}
+                        placeholder="Digite o nome do produto"
+                        style={styles.nameInput}
+                        inputContainerStyle={styles.nameInputcontainer}
+                        listContainerStyle={styles.nameInputcontainer}
+                        hideResults={hideSuggestions}
+                        flatListProps={{
+                          keyExtractor: (name: string) => name,
+                          renderItem: ({ item }) => (
+                            <TouchableOpacity
+                              onPress={() => handleAutoCompleteOnPress(item)}
+                              style={{ backgroundColor: "red" }}
+                            >
+                              <Text style={styles.nameSuggestion}>{item}</Text>
+                            </TouchableOpacity>
+                          ),
+                        }}
+                        renderItem={({ item }) => (
                           <TouchableOpacity
                             onPress={() => handleAutoCompleteOnPress(item)}
                             style={{ backgroundColor: "red" }}
                           >
                             <Text style={styles.nameSuggestion}>{item}</Text>
                           </TouchableOpacity>
-                        ),
-                      }}
-                      renderItem={({ item }) => (
-                        <TouchableOpacity
-                          onPress={() => handleAutoCompleteOnPress(item)}
-                          style={{ backgroundColor: "red" }}
-                        >
-                          <Text style={styles.nameSuggestion}>{item}</Text>
-                        </TouchableOpacity>
-                      )}
-                      listStyle={{ backgroundColor: "red" }}
-                    />
+                        )}
+                        listStyle={{ backgroundColor: "red" }}
+                      />
+                    </View>
                   </View>
                 </View>
-              </View>
+              )}
 
               <View style={styles.buttonWrapper}>
                 <Button text="SALVAR" onPress={handleProductSave} />

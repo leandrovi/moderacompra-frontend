@@ -31,6 +31,7 @@ export interface Product {
 export interface ProductQuantity {
   id?: string;
   list_id?: string;
+  ListId?: string;
   initial_quantity: number;
   final_quantity?: number;
   suggestion_quantity?: number;

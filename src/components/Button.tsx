@@ -32,6 +32,9 @@ export function Button({
           : {
               backgroundColor: colors.gray,
             },
+        rest.disabled && {
+          backgroundColor: colors.whiteOrange,
+        },
       ]}
       {...rest}
     >

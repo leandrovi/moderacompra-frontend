@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
 
   background: {
     width: "100%",
-    paddingHorizontal: 29,
+    paddingHorizontal: 20,
     paddingVertical: 18,
     borderRadius: 20,
     flexDirection: "row",
