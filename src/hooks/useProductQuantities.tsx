@@ -265,7 +265,10 @@ export function ProductQuantitiesProvider({
     const response = await api.get(
       `/product-quantities/lists/${list_id}?order=created_at,desc`
     );
-    setProductQuantities(response.data.rows);
+
+    if (response.data !== productQuantities) {
+      setProductQuantities(response.data.rows);
+    }
   };
 
   const createBatchProductQuantities = async ({

@@ -40,6 +40,8 @@ export function ListsProvider({ children }: ListsProviderProps) {
     const params = `offset=${offset}&order=created_at,desc`;
     const response = await api.get(`/lists?${params}`);
 
+    console.log("History fetched:", response.data);
+
     const { rows } = response.data;
     const count = rows.length;
 
@@ -49,6 +51,7 @@ export function ListsProvider({ children }: ListsProviderProps) {
       const mostRecentList: List = rows[0];
 
       if (mostRecentList.status.description !== "finalizada") {
+        console.log("Most recent list:", mostRecentList);
         setCurrentList(mostRecentList);
       } else {
         setCurrentList({} as List);
@@ -57,6 +60,7 @@ export function ListsProvider({ children }: ListsProviderProps) {
       setIsFirstList(false);
     } else {
       setIsFirstList(true);
+      initializeNewList();
     }
   };
 
@@ -71,6 +75,8 @@ export function ListsProvider({ children }: ListsProviderProps) {
 
       setCurrentList(list);
       setNewList({} as List);
+
+      console.log(list);
 
       return list;
     } catch (err) {

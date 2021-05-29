@@ -89,7 +89,7 @@ export function ProductCard({
         </View>
 
         <View style={styles.quantityWrapper}>
-          {status.description === "em aberto" ? (
+          {status?.description === "em aberto" ? (
             <>
               <RectButton
                 style={styles.newQuantity}
@@ -124,11 +124,9 @@ export function ProductCard({
       overshootRight={false}
       renderRightActions={() => (
         <Animated.View>
-          <View style={styles.remove}>
-            <RectButton style={styles.buttonRemove} onPress={handleRemove}>
-              <Feather name="trash" size={32} color={colors.white} />
-            </RectButton>
-          </View>
+          <RectButton style={styles.buttonRemove} onPress={handleRemove}>
+            <Feather name="trash" size={32} color={colors.white} />
+          </RectButton>
         </Animated.View>
       )}
     >
@@ -152,21 +150,16 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
 
-  remove: {
-    borderRadius: 20,
-    backgroundColor: colors.red,
-  },
-
   buttonRemove: {
     backgroundColor: colors.red,
-    width: 90,
+    width: 100,
     height: 80,
     borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
-    right: 30,
-    paddingLeft: 58,
+    right: 25,
+    paddingLeft: 18,
   },
 
   descriptionWrapper: {

@@ -1,11 +1,11 @@
 import axios from "axios";
 
-const baseURL = "http://localhost:3333"; // local (dev)
-// const baseURL = "https://secret-lowlands-42826.herokuapp.com"; // staging
+// const baseURL = "http://localhost:3333"; // local (dev)
+const baseURL = "https://secret-lowlands-42826.herokuapp.com"; // staging
 // const baseURL = "https://api-moderacompra.herokuapp.com"; // prod
 
 const hardCodedToken =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjA1NzNmZjBmLTNkNzQtNDgxNi1iNmJmLTU5OThjZDY5NzJjMyIsImlhdCI6MTYyMjE2OTA4MywiZXhwIjoxNjIzNDY1MDgzfQ.Ysn3Iq6dsz8erQJcLtD8ckXTzVrwZT6Ee9I-hFJCpK8";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjIwOTNhNTA2LTZhNDMtNGQzNi04YWY0LWUzYWEzNTc3YTY3MiIsImlhdCI6MTYyMjI1MzQ0MiwiZXhwIjoxNjIzNTQ5NDQyfQ.q_xn61OkQoe_R9ksBSV-t0axhPi93unAd3YGjN3vcWk";
 
 const api = axios.create({
   baseURL: baseURL,

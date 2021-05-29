@@ -33,6 +33,10 @@ export function Home() {
     setListsLoaded(true);
   }
 
+  useEffect(() => {
+    fetchListsHistory();
+  }, []);
+
   useFocusEffect(
     useCallback(() => {
       fetchListsHistory();
@@ -66,7 +70,7 @@ export function Home() {
         <Text style={styles.privacy}>Privacy Policy</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
+      {/* <TouchableOpacity
         onPress={() =>
           navigation.navigate("EditList", {
             url: "https://www.nfce.fazenda.sp.gov.br/qrcode?p=35210560479680001090651050001600861259534072|2|1|1|643A34EFA0FBBF88AC6EFBB323D294586190ACAF",
@@ -75,7 +79,7 @@ export function Home() {
         }
       >
         <Text>TESTE</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <StatusBar
         style={Platform.OS === "android" ? "light" : "dark"}

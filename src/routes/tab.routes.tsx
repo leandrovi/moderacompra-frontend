@@ -18,7 +18,7 @@ const tabRoutes = createBottomTabNavigator();
 const TabRoutes: React.FC = () => {
   const { currentList } = useLists();
 
-  const isFirstList = !currentList ? true : false;
+  const isFirstList = currentList.status ? false : true;
 
   return (
     <tabRoutes.Navigator

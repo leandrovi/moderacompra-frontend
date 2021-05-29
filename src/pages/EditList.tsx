@@ -49,11 +49,8 @@ export function EditList() {
       const response = await api.post("/scrap", { url_nfce: url });
       const scrappedProducts: ScrappedProduct[] = response.data.products;
 
-      updateFirstListProducts([scrappedProducts[0]]);
-      updateFirstListProductQuantities([
-        scrappedProducts[0],
-        scrappedProducts[5],
-      ]);
+      updateFirstListProducts(scrappedProducts);
+      updateFirstListProductQuantities(scrappedProducts);
     } catch (error) {
       console.log(error);
     } finally {

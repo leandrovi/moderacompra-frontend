@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View, Text, ScrollView } from "react-native";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 
@@ -17,11 +17,15 @@ import { Button } from "../components/Button";
 // Styles
 import colors from "../styles/colors";
 import fonts from "../styles/fonts";
+import { ModeraModal } from "../components/ModeraModal";
 
 export function CurrentList() {
   const navigation = useNavigation();
+  const [loading, setLoading] = useState(true);
+  const [modalVisible, setModalVisible] = useState(true);
 
-  const { currentList } = useLists();
+  const { finalizeList, initializeNewList, currentList } = useLists();
+
   const {
     count,
     productQuantities,
@@ -30,20 +34,16 @@ export function CurrentList() {
     generateSuggestions,
     populateProductQuantities,
   } = useProductQuantities();
-  const { finalizeList, initializeNewList } = useLists();
-  const [loading, setLoading] = useState(true);
 
   async function handleFetchproductQuantities() {
     setLoading(true);
 
     if (currentList.id) {
-      console.log("Current list id:", currentList.id);
-      console.log("Product Quantities:", productQuantities);
-
       if (
         productQuantities.length === 0 ||
         productQuantities[0]?.ListId !== currentList.id
       ) {
+        console.log("Fetching product quantities...");
         await fetchProductQuantities(currentList.id);
       }
     }
@@ -87,9 +87,26 @@ export function CurrentList() {
     }
   }
 
+  function handleModalAction() {
+    setModalVisible(false);
+    navigation.goBack();
+  }
+
   useFocusEffect(
     useCallback(() => {
       handleFetchproductQuantities();
+    }, [])
+  );
+
+  useEffect(() => {
+    handleFetchproductQuantities();
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!currentList.status) {
+        setModalVisible(true);
+      }
     }, [])
   );
 
@@ -97,7 +114,7 @@ export function CurrentList() {
     return <Loader />;
   }
 
-  return (
+  return currentList.status ? (
     <ScrollView
       contentContainerStyle={styles.container}
       showsVerticalScrollIndicator={false}
@@ -127,6 +144,15 @@ export function CurrentList() {
         <ProductList isEditMode={false} list={currentList} />
       </View>
     </ScrollView>
+  ) : (
+    <ModeraModal
+      visible={modalVisible}
+      type="error"
+      title="Nada pra ver aqui"
+      text="Parece que você ainda não criou sua primeira lista."
+      actionText="VOLTAR"
+      onActionPress={handleModalAction}
+    />
   );
 }
 
