@@ -1,74 +1,146 @@
-﻿import React, { useState } from "react";
-import { LinearGradient } from "expo-linear-gradient";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import {
-  StyleSheet,
-  View,
-  Text,
-  Image,
-  Platform,
-  TextInput,
-  TouchableOpacity,
-  TouchableOpacityProps,
-} from "react-native";
+﻿import React from "react";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { StyleSheet, View, Text, Animated, Alert } from "react-native";
+import { RectButton, RectButtonProps } from "react-native-gesture-handler";
+import Swipeable from "react-native-gesture-handler/Swipeable";
+import { Feather } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/core";
 
-// Assets
-import EditIcon from "../assets/svgs/EditIcon";
+// Hooks
+import { useProductQuantities } from "../hooks/useProductQuantities";
 
 // Styles
 import colors from "../styles/colors";
 import fonts from "../styles/fonts";
 
-import { ProductQuantity } from "../interfaces";
+import { ProductQuantity, Status } from "../interfaces";
 
-interface ProductCardProps extends TouchableOpacityProps {
+interface ProductCardProps extends RectButtonProps {
+  isEditMode?: boolean;
+  status: Status;
   productQuantity: ProductQuantity;
 }
 
-export function ProductCard({ productQuantity, ...rest }: ProductCardProps) {
-  const backgroundColors = ["#F7F7F7", "#EEEEEE"];
-  //const textColor = colors.darkGray;
+export function ProductCard({
+  isEditMode = false,
+  status,
+  productQuantity,
+  ...rest
+}: ProductCardProps) {
+  const { removeProductQuantity } = useProductQuantities();
+  const navigation = useNavigation();
 
-  return (
-    <TouchableOpacity style={styles.container} {...rest}>
-      <LinearGradient
-        colors={backgroundColors}
-        start={{ x: -1, y: 1.1 }}
-        end={{ x: 1.2, y: -0.1 }}
-        locations={[0, 1]}
-        style={styles.background}
-      >
-        <View style={styles.descriptionWrapper}>
-          <MaterialCommunityIcons
-            name="pencil-outline"
+  function renderCardIcon() {
+    if (isEditMode) {
+      return (
+        <MaterialCommunityIcons
+          name="pencil-outline"
+          size={22}
+          color={colors.darkGray}
+          style={{ marginRight: 6 }}
+        />
+      );
+    }
+
+    if (status.description !== "finalizada") {
+      if (!productQuantity.checked) {
+        return (
+          <MaterialIcons
+            name="check-box-outline-blank"
             size={22}
             color={colors.darkGray}
             style={{ marginRight: 6 }}
           />
+        );
+      } else {
+        return (
+          <MaterialIcons
+            name="check-box"
+            size={22}
+            color={colors.orange}
+            style={{ marginRight: 6 }}
+          />
+        );
+      }
+    }
+  }
+
+  function handleRemove() {
+    removeProductQuantity(productQuantity);
+  }
+
+  function handleNewQuantityPress() {
+    navigation.navigate("ProductDetails", {
+      mode: "edit",
+      productQuantity,
+      isFinalQuantity: true,
+    });
+  }
+
+  function ProductCardContent() {
+    return (
+      <RectButton style={styles.container} {...rest}>
+        <View style={styles.descriptionWrapper}>
+          {renderCardIcon()}
+
           <Text style={styles.description} numberOfLines={1}>
             {productQuantity?.product?.name}
           </Text>
         </View>
 
         <View style={styles.quantityWrapper}>
-          <Text style={styles.quantity}>
-            {productQuantity?.initial_quantity}
-          </Text>
-          <Text style={styles.unity}>
-            {productQuantity?.unity.description.toLowerCase()}
-          </Text>
+          {status?.description === "em aberto" ? (
+            <>
+              <RectButton
+                style={styles.newQuantity}
+                onPress={handleNewQuantityPress}
+              >
+                <Text style={styles.input}>
+                  {String(productQuantity.final_quantity) ?? "0"}
+                </Text>
+              </RectButton>
+
+              <Text style={styles.unity}>
+                {productQuantity?.unity.description.toLowerCase()}
+              </Text>
+            </>
+          ) : (
+            <>
+              <Text style={styles.quantity}>
+                {productQuantity?.initial_quantity}
+              </Text>
+              <Text style={styles.unity}>
+                {productQuantity?.unity.description.toLowerCase()}
+              </Text>
+            </>
+          )}
         </View>
-      </LinearGradient>
-    </TouchableOpacity>
+      </RectButton>
+    );
+  }
+
+  return isEditMode ? (
+    <Swipeable
+      overshootRight={false}
+      renderRightActions={() => (
+        <Animated.View>
+          <RectButton style={styles.buttonRemove} onPress={handleRemove}>
+            <Feather name="trash" size={32} color={colors.white} />
+          </RectButton>
+        </Animated.View>
+      )}
+    >
+      <ProductCardContent />
+    </Swipeable>
+  ) : (
+    <ProductCardContent />
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     marginBottom: 10,
-  },
-
-  background: {
+    backgroundColor: "#EEEEEE",
     width: "100%",
     height: 80,
     paddingHorizontal: 20,
@@ -76,6 +148,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+  },
+
+  buttonRemove: {
+    backgroundColor: colors.red,
+    width: 100,
+    height: 80,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    position: "relative",
+    right: 25,
+    paddingLeft: 18,
   },
 
   descriptionWrapper: {
@@ -111,5 +195,21 @@ const styles = StyleSheet.create({
     fontFamily: fonts.textLight,
     color: colors.lightGray,
     marginLeft: 3,
+  },
+
+  newQuantity: {
+    backgroundColor: colors.whiteOrange,
+    marginLeft: 3,
+    marginRight: 5,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+  },
+
+  input: {
+    color: colors.orange,
+    fontSize: 24,
+    fontFamily: fonts.textLight,
+    textAlign: "center",
+    zIndex: 10,
   },
 });

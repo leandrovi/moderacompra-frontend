@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -28,6 +28,7 @@ import { BackButton } from "../components/BackButton";
 
 export function QRScan() {
   const navigation = useNavigation();
+  console.log("abri o scan");
 
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [type, setType] = useState<any>(BarCodeScanner.Constants.Type.back);
@@ -55,6 +56,7 @@ export function QRScan() {
   });
 
   function handleBarCodeScanned({ data, bounds }: BarCodeScannerResult) {
+    console.log("ta tentando...");
     if (!scanned) {
       const { origin } = bounds as {} as BarCodeBounds;
       const { x, y } = origin;
@@ -69,7 +71,11 @@ export function QRScan() {
         console.log(data);
 
         setScanned(true);
-        navigation.navigate("EditFirstList", { url: data });
+
+        navigation.navigate("EditList", {
+          url: data,
+          listContext: "newListEdition",
+        });
       }
     }
   }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -8,19 +8,44 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+
+// Hooks
+import { useLists } from "../hooks/useLists";
+import { useProductQuantities } from "../hooks/useProductQuantities";
 
 // Components
 import { Info } from "../components/Info";
 import { Header } from "../components/Header";
+import { Loader } from "../components/Loader";
 
 // Styles
 import colors from "../styles/colors";
 import fonts from "../styles/fonts";
 
 export function Home() {
-  const [isFirstList, setIsFirstList] = useState(true);
   const navigation = useNavigation();
+  const [listsLoaded, setListsLoaded] = useState(false);
+  const { setListsHistory, isFirstList, currentList } = useLists();
+
+  async function fetchListsHistory() {
+    await setListsHistory();
+    setListsLoaded(true);
+  }
+
+  useEffect(() => {
+    fetchListsHistory();
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchListsHistory();
+    }, [])
+  );
+
+  if (!listsLoaded) {
+    return <Loader />;
+  }
 
   return (
     <View style={styles.container}>
@@ -45,9 +70,16 @@ export function Home() {
         <Text style={styles.privacy}>Privacy Policy</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate("EditList")}>
+      {/* <TouchableOpacity
+        onPress={() =>
+          navigation.navigate("EditList", {
+            url: "https://www.nfce.fazenda.sp.gov.br/qrcode?p=35210560479680001090651050001600861259534072|2|1|1|643A34EFA0FBBF88AC6EFBB323D294586190ACAF",
+            listContext: "newListEdition",
+          })
+        }
+      >
         <Text>TESTE</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <StatusBar
         style={Platform.OS === "android" ? "light" : "dark"}

@@ -6,6 +6,7 @@ import { getStatusBarHeight } from "react-native-iphone-x-helper";
 // Hooks
 import { useProducts } from "../hooks/useProducts";
 import { useProductQuantities } from "../hooks/useProductQuantities";
+import { useLists } from "../hooks/useLists";
 
 // Services
 import api from "../services/api";
@@ -14,63 +15,88 @@ import api from "../services/api";
 import { Loader } from "../components/Loader";
 import { ListInfo } from "../components/ListInfo";
 import { Button } from "../components/Button";
+import { ProductList } from "../components/ProductList";
 
 // styles
 import colors from "../styles/colors";
 
 // Interfaces
 import { ScrappedProduct } from "../interfaces";
-import { ProductList } from "../components/ProductList";
 
-interface EditFirstListParams {
-  url: string;
+interface EditListParams {
+  url?: string;
+  listContext: "newListEdition" | "currentListEdition";
 }
 
 export function EditList() {
   const routes = useRoute();
   const navigation = useNavigation();
-
-  const { updateFirstListProducts } = useProducts();
-  const { updateFirstListProductQuantities } = useProductQuantities();
-
   const [isLoading, setIsLoading] = useState(true);
 
-  // const { url } = routes.params as EditFirstListParams;
-  const url =
-    "https://www.nfce.fazenda.sp.gov.br/qrcode?p=35210560479680001090651050001600861259534072|2|1|1|643A34EFA0FBBF88AC6EFBB323D294586190ACAF";
+  const { url, listContext } = routes.params as EditListParams;
+  const { newList, currentList, isFirstList, createList } = useLists();
+  const { updateFirstListProducts, createBatchProducts } = useProducts();
+  const {
+    updateFirstListProductQuantities,
+    productQuantities,
+    createBatchProductQuantities,
+  } = useProductQuantities();
 
-  useEffect(() => {
-    async function fetchScrappedProducts() {
-      try {
-        // First gets the scrapped products
-        const response = await api.post("/scrap", {
-          url_nfce: url,
-        });
+  const list = listContext === "newListEdition" ? newList : currentList;
 
-        const scrappedProducts: ScrappedProduct[] = response.data.products;
+  async function fetchScrappedProducts() {
+    try {
+      const response = await api.post("/scrap", { url_nfce: url });
+      const scrappedProducts: ScrappedProduct[] = response.data.products;
 
-        // Then sets a state with all the products locally
-        updateFirstListProducts(scrappedProducts);
-
-        // Finally sets a state with all the product_quantities locally
-        updateFirstListProductQuantities(scrappedProducts);
-      } catch (error) {
-        console.log(error);
-      }
-
+      updateFirstListProducts(scrappedProducts);
+      updateFirstListProductQuantities(scrappedProducts);
+    } catch (error) {
+      console.log(error);
+    } finally {
       setIsLoading(false);
     }
+  }
 
-    fetchScrappedProducts();
+  useEffect(() => {
+    if (isFirstList) {
+      fetchScrappedProducts();
+    } else {
+      /**
+       * TODO: show the results of the processing for new list,
+       * when the backend calculates the suggestions
+       * fetchSuggestedProducts();
+       */
+      setIsLoading(false);
+    }
   }, []);
 
   function handleOnCancel() {
-    navigation.goBack();
+    listContext === "newListEdition"
+      ? navigation.navigate("Home")
+      : navigation.goBack();
   }
 
-  function handleOnSave() {
-    // Make API Call
-    navigation.navigate("Home");
+  async function handleOnSave() {
+    setIsLoading(true);
+
+    try {
+      const persistedList =
+        listContext === "newListEdition" ? await createList() : list;
+
+      const persistedProducts = await createBatchProducts(productQuantities);
+
+      await createBatchProductQuantities({
+        list: persistedList,
+        products: persistedProducts,
+      });
+
+      navigation.navigate("Home");
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   if (isLoading) {
@@ -89,7 +115,7 @@ export function EditList() {
         </View>
       </View>
 
-      <ProductList />
+      <ProductList isEditMode={true} list={list} />
     </View>
   );
 }

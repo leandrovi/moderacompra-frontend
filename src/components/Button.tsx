@@ -32,6 +32,9 @@ export function Button({
           : {
               backgroundColor: colors.gray,
             },
+        rest.disabled && {
+          backgroundColor: colors.whiteOrange,
+        },
       ]}
       {...rest}
     >
@@ -51,12 +54,12 @@ export function Button({
 
 const styles = StyleSheet.create({
   container: {
-    height: 54,
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
     flex: 1,
+    maxHeight: 54,
   },
 
   icon: {

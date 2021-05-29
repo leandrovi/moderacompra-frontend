@@ -71,11 +71,13 @@ export function ScanFirstListIOS() {
           Sua lista ainda está vazia
         </Text>
 
-        <Button
-          text="ESCANEAR CUPOM"
-          isQRButton={true}
-          onPress={handleScanCoupon}
-        />
+        <View style={styles.scanButton}>
+          <Button
+            text="ESCANEAR CUPOM"
+            isQRButton={true}
+            onPress={handleScanCoupon}
+          />
+        </View>
       </View>
     </View>
   );
@@ -125,5 +127,7 @@ const styles = StyleSheet.create({
     bottom: 44,
   },
 
-  scanButton: {},
+  scanButton: {
+    flexDirection: "row",
+  },
 });

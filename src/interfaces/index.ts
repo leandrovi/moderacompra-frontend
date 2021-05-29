@@ -31,6 +31,7 @@ export interface Product {
 export interface ProductQuantity {
   id?: string;
   list_id?: string;
+  ListId?: string;
   initial_quantity: number;
   final_quantity?: number;
   suggestion_quantity?: number;
@@ -38,13 +39,16 @@ export interface ProductQuantity {
   product?: Product;
   createdAt?: Date;
   updatedAt?: Date;
+  checked?: boolean;
 }
 
 export interface List {
   id?: string;
-  user_id: string;
+  user_id?: string;
   status: Status;
   product_quantities?: ProductQuantity[];
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface ScrappedProduct {
