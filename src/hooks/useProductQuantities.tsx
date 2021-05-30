@@ -33,6 +33,15 @@ interface CreateProductQuantityPayload {
   unity: Unity;
 }
 
+interface UpdateProductQuantityPayload {
+  id: string;
+  list_id: string;
+  product_id: string;
+  name: string;
+  initial_quantity: number;
+  unity: Unity;
+}
+
 interface AddSingleProductQuantity {
   product: Product;
   quantity: number;
@@ -93,6 +102,8 @@ interface ProductQuantitiesContextData {
   updateSingleProductFinalQuantity: (
     data: UpdateSingleProductFinalQuantity
   ) => void;
+
+  updateBatchProductQuantities: (products: Product[]) => Promise<void>;
 }
 
 const ProductQuantitiesContext = createContext<ProductQuantitiesContextData>(
@@ -263,9 +274,7 @@ export function ProductQuantitiesProvider({
     setCount(productQtts.length);
   };
 
-  const updateNewProductQuantities = async (
-    newProductQtts: ProductQuantity[]
-  ) => {
+  const updateNewProductQuantities = (newProductQtts: ProductQuantity[]) => {
     setNewProductQuantities(newProductQtts);
   };
 
@@ -348,6 +357,37 @@ export function ProductQuantitiesProvider({
     setNewProductQuantities(updatedNewProductQuantities);
   };
 
+  const updateBatchProductQuantities = async (products: Product[]) => {
+    const updatedProductQuantities = [...newProductQuantities];
+    const updateProductQuantitiesPayload: UpdateProductQuantityPayload[] = [];
+
+    for (const productQuantity of updatedProductQuantities) {
+      const product = products.find(
+        (item) => item.name === productQuantity.product?.name
+      ) as Product;
+
+      const payloadItem: UpdateProductQuantityPayload = {
+        id: productQuantity.id as string,
+        list_id: productQuantity.list_id as string,
+        product_id: product.id as string,
+        name: product.name,
+        initial_quantity: productQuantity.initial_quantity,
+        unity: productQuantity.unity,
+      };
+
+      updateProductQuantitiesPayload.push(payloadItem);
+    }
+
+    const response = await api.put(
+      "/product-quantities/batch",
+      updateProductQuantitiesPayload
+    );
+
+    setProductQuantities(response.data);
+    setCount(response.data.length);
+    setNewProductQuantities([]);
+  };
+
   return (
     <ProductQuantitiesContext.Provider
       value={{
@@ -368,6 +408,7 @@ export function ProductQuantitiesProvider({
         addSingleProductQuantity,
         updateSingleProductQuantity,
         updateSingleProductFinalQuantity,
+        updateBatchProductQuantities,
       }}
     >
       {children}

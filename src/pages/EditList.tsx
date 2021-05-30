@@ -35,7 +35,7 @@ export function EditList() {
 
   const { url, listContext } = routes.params as EditListParams;
   const { currentList, isFirstList, createList } = useLists();
-  const { createBatchProducts } = useProducts();
+  const { verifyNewProducts, createBatchProducts, products } = useProducts();
   const {
     newProductQuantities,
     productQuantities,
@@ -43,6 +43,7 @@ export function EditList() {
     updateNewProductQuantities,
     useSuggestedProductQuantitiesForNewList,
     createBatchProductQuantities,
+    updateBatchProductQuantities,
   } = useProductQuantities();
 
   async function fetchScrappedProducts() {
@@ -85,13 +86,20 @@ export function EditList() {
     setIsLoading(true);
 
     try {
-      // const persistedList =
-      //   listContext === "newListEdition" ? await createList() : list;
-      // const persistedProducts = await createBatchProducts(productQuantities);
-      // await createBatchProductQuantities({
-      //   list: persistedList,
-      //   products: persistedProducts,
-      // });
+      // Check if there are new products
+      const newProducts = verifyNewProducts(newProductQuantities);
+      let updatedProducts = products;
+
+      if (newProducts.length > 0) {
+        updatedProducts = await createBatchProducts(newProducts);
+      }
+
+      if (listContext === "currentListEdition") {
+        await updateBatchProductQuantities(updatedProducts);
+      } else {
+        const list = await createList();
+        await createBatchProductQuantities({ list, products: updatedProducts });
+      }
     } catch (err) {
       console.log(err);
       Alert.alert("Erro!", err);
