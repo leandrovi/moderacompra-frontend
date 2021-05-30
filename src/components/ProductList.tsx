@@ -22,38 +22,41 @@ import colors from "../styles/colors";
 import fonts from "../styles/fonts";
 
 // Interfaces
-import { List, ProductQuantity } from "../interfaces";
+import { List, ProductQuantity, Status } from "../interfaces";
 
 interface ProductListProps {
   isEditMode?: boolean;
-  list: List;
 }
 
-export function ProductList({ isEditMode = false, list }: ProductListProps) {
+export function ProductList({ isEditMode = false }: ProductListProps) {
   const navigation = useNavigation();
+  const { currentList } = useLists();
 
-  const { isFirstList } = useLists();
+  const [listStatus, setListStatus] = useState<Status>(() =>
+    currentList ? currentList.status : { description: "pendente" }
+  );
 
-  const { productQuantities, updateProductQuantityCheck } =
-    useProductQuantities();
+  const {
+    productQuantities,
+    newProductQuantities,
+    updateProductQuantityCheck,
+  } = useProductQuantities();
 
-  console.log("ProductQuantities:", productQuantities);
+  function handleAddNewProduct() {
+    navigation.navigate("ProductDetails", { mode: "add", productQuantity: {} });
+  }
 
-  function handleProductQuantitySelect(productQuantity: ProductQuantity) {
+  function handleProductQuantityPress(productQuantity: ProductQuantity) {
     if (isEditMode) {
       navigation.navigate("ProductDetails", { mode: "edit", productQuantity });
     } else {
-      if (list.status.description !== "finalizada") {
+      if (listStatus.description !== "finalizada") {
         updateProductQuantityCheck({
           checked: !productQuantity.checked,
           name: productQuantity.product?.name as string,
         });
       }
     }
-  }
-
-  function handleAddNewProduct() {
-    navigation.navigate("ProductDetails", { mode: "add", productQuantity: {} });
   }
 
   return (
@@ -78,7 +81,7 @@ export function ProductList({ isEditMode = false, list }: ProductListProps) {
       </View>
 
       <FlatList
-        data={productQuantities}
+        data={isEditMode ? newProductQuantities : productQuantities}
         keyExtractor={(item) =>
           item.product?.id ? item.product.id : String(Math.random() * 100 + 1)
         }
@@ -86,8 +89,8 @@ export function ProductList({ isEditMode = false, list }: ProductListProps) {
           <ProductCard
             isEditMode={isEditMode}
             productQuantity={item}
-            status={list.status}
-            onPress={() => handleProductQuantitySelect(item)}
+            status={listStatus}
+            onPress={() => handleProductQuantityPress(item)}
           />
         )}
         showsVerticalScrollIndicator={false}

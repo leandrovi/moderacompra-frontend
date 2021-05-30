@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View, Text, ScrollView } from "react-native";
+import { StyleSheet, View, Text, ScrollView, Alert } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/core";
 import { getStatusBarHeight } from "react-native-iphone-x-helper";
 
@@ -37,10 +37,12 @@ export function EditList() {
   const { currentList, isFirstList, createList } = useLists();
   const { createBatchProducts } = useProducts();
   const {
-    generateScrappedProductQuantities,
     newProductQuantities,
-    createBatchProductQuantities,
+    productQuantities,
+    generateScrappedProductQuantities,
     updateNewProductQuantities,
+    useSuggestedProductQuantitiesForNewList,
+    createBatchProductQuantities,
   } = useProductQuantities();
 
   async function fetchScrappedProducts() {
@@ -60,15 +62,12 @@ export function EditList() {
   }
 
   useEffect(() => {
-    if (isFirstList) {
-      fetchScrappedProducts();
+    if (listContext === "currentListEdition") {
+      updateNewProductQuantities(productQuantities);
     } else {
-      /**
-       * TODO: show the results of the processing for new list,
-       * when the backend calculates the suggestions
-       * fetchSuggestedProducts();
-       */
-      setIsLoading(false);
+      isFirstList
+        ? fetchScrappedProducts()
+        : useSuggestedProductQuantitiesForNewList();
     }
   }, []);
 
@@ -95,8 +94,10 @@ export function EditList() {
       // });
     } catch (err) {
       console.log(err);
+      Alert.alert("Erro!", err);
     } finally {
       setIsLoading(false);
+      updateNewProductQuantities([]);
     }
 
     navigation.navigate("Home");
@@ -118,7 +119,7 @@ export function EditList() {
         </View>
       </View>
 
-      {/* <ProductList isEditMode={true} list={currentList} /> */}
+      <ProductList isEditMode={true} />
     </View>
   );
 }
