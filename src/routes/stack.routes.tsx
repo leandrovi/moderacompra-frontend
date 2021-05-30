@@ -17,6 +17,7 @@ import { NewList } from "../pages/NewList";
 // Styles
 import colors from "../styles/colors";
 import { Platform } from "react-native";
+import { Login } from "../pages/Login";
 
 const stackRoutes = createStackNavigator();
 
@@ -42,6 +43,7 @@ const AppRoutes: React.FC = () => (
     <stackRoutes.Screen name="ProductDetails" component={ProductDetails} />
     <stackRoutes.Screen name="NewFirstList" component={NewFirstList} />
     <stackRoutes.Screen name="NewList" component={NewList} />
+    <stackRoutes.Screen name="Login" component={Login} />
   </stackRoutes.Navigator>
 );
 
