@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
+import { MaterialIcons } from "@expo/vector-icons";
 
 // Hooks
 import { useLists } from "../hooks/useLists";
@@ -46,6 +47,12 @@ export function Home() {
     fetchListsAndProducts();
   }, []);
 
+  function handleNewList() {
+    isFirstList
+      ? navigation.navigate("NewFirstList")
+      : navigation.navigate("NewList");
+  }
+
   if (!listsLoaded) {
     return <Loader />;
   }
@@ -69,8 +76,15 @@ export function Home() {
         )}
       </View>
 
-      <TouchableOpacity onPress={() => navigation.navigate("PrivacyPolicy")}>
-        <Text style={styles.privacy}>Privacy Policy</Text>
+      <TouchableOpacity style={styles.newList} onPress={handleNewList}>
+        <MaterialIcons
+          name="add-circle-outline"
+          size={24}
+          color={colors.orange}
+          style={{ marginRight: 6 }}
+        />
+
+        <Text style={[styles.text, { marginBottom: 0 }]}>Nova Lista</Text>
       </TouchableOpacity>
 
       {/* <TouchableOpacity
@@ -114,5 +128,10 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     fontFamily: fonts.textLight,
     alignSelf: "flex-end",
+  },
+
+  newList: {
+    flexDirection: "row",
+    alignItems: "center",
   },
 });

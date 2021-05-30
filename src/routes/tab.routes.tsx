@@ -4,7 +4,6 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { ifIphoneX } from "react-native-iphone-x-helper";
 
 import { Home } from "../pages/Home";
-import { NewList } from "../pages/NewList";
 import { CurrentList } from "../pages/CurrentList";
 import { Lists } from "../pages/Lists";
 
@@ -47,19 +46,6 @@ const TabRoutes: React.FC = () => {
         options={{
           tabBarIcon: ({ size, color }) => (
             <MaterialIcons name="home" size={size} color={color} />
-          ),
-        }}
-      />
-      <tabRoutes.Screen
-        name="Nova Lista"
-        component={NewList}
-        options={{
-          tabBarIcon: ({ size, color }) => (
-            <MaterialIcons
-              name="add-circle-outline"
-              size={size}
-              color={color}
-            />
           ),
         }}
       />

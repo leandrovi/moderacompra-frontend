@@ -11,6 +11,8 @@ import { QRScan } from "../pages/QRScan";
 import { EditList } from "../pages/EditList";
 import { PrivacyPolicy } from "../pages/PrivacyPolicy";
 import { ProductDetails } from "../pages/ProductDetails";
+import { NewFirstList } from "../pages/NewFirstList";
+import { NewList } from "../pages/NewList";
 
 // Styles
 import colors from "../styles/colors";
@@ -38,6 +40,8 @@ const AppRoutes: React.FC = () => (
     <stackRoutes.Screen name="EditList" component={EditList} />
     <stackRoutes.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
     <stackRoutes.Screen name="ProductDetails" component={ProductDetails} />
+    <stackRoutes.Screen name="NewFirstList" component={NewFirstList} />
+    <stackRoutes.Screen name="NewList" component={NewList} />
   </stackRoutes.Navigator>
 );
 

@@ -13,7 +13,7 @@ import { Info } from "../components/Info";
 import colors from "../styles/colors";
 import fonts from "../styles/fonts";
 
-export function CreateFirstList() {
+export function NewFirstList() {
   const navigation = useNavigation();
 
   const { initializeNewList } = useLists();
