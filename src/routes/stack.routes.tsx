@@ -15,6 +15,7 @@ import { ProductDetails } from "../pages/ProductDetails";
 // Styles
 import colors from "../styles/colors";
 import { Platform } from "react-native";
+import { Login } from "../pages/Login";
 
 const stackRoutes = createStackNavigator();
 
@@ -38,6 +39,7 @@ const AppRoutes: React.FC = () => (
     <stackRoutes.Screen name="EditList" component={EditList} />
     <stackRoutes.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
     <stackRoutes.Screen name="ProductDetails" component={ProductDetails} />
+    <stackRoutes.Screen name="Login" component={Login} />
   </stackRoutes.Navigator>
 );
 
