@@ -1,12 +1,4 @@
-import React, {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-
-import { useProducts } from "./useProducts";
+import React, { createContext, ReactNode, useContext, useState } from "react";
 
 import {
   List,
@@ -15,6 +7,7 @@ import {
   ScrappedProduct,
   Unity,
 } from "../interfaces";
+
 import api from "../services/api";
 
 interface UpdateProductQuantityAmount {
@@ -54,14 +47,15 @@ interface CreateProductQuantityPayload {
 
 interface ProductQuantitiesContextData {
   productQuantities: ProductQuantity[];
+  newProductQuantities: ProductQuantity[];
   count: number;
   allChecked: boolean;
 
-  updateFirstListProductQuantities: (
+  generateScrappedProductQuantities: (
     scrappedProducts: ScrappedProduct[]
-  ) => void;
+  ) => ProductQuantity[];
 
-  updateProductQuantityAmount: ({
+  updateNewProductQuantityAmount: ({
     amount,
     name,
   }: UpdateProductQuantityAmount) => void;
@@ -89,7 +83,8 @@ interface ProductQuantitiesContextData {
 
   generateSuggestions: () => Promise<ProductQuantity[]>;
 
-  populateProductQuantities: (productQttts: ProductQuantity[]) => void;
+  updateProductQuantities: (productQttts: ProductQuantity[]) => void;
+  updateNewProductQuantities: (productQttts: ProductQuantity[]) => void;
 }
 
 const ProductQuantitiesContext = createContext<ProductQuantitiesContextData>(
@@ -102,16 +97,17 @@ export function ProductQuantitiesProvider({
   const [productQuantities, setProductQuantities] = useState<ProductQuantity[]>(
     []
   );
+  const [newProductQuantities, setNewProductQuantities] = useState<
+    ProductQuantity[]
+  >([]);
+
   const [count, setCount] = useState(0);
   const [allChecked, setAllChecked] = useState(false);
 
-  const { addProductToCurrentList, removeProductFromCurrentList } =
-    useProducts();
-
-  const updateFirstListProductQuantities = (
+  const generateScrappedProductQuantities = (
     scrappedProducts: ScrappedProduct[]
   ) => {
-    const productQuantities: ProductQuantity[] = [];
+    const newProductQtts: ProductQuantity[] = [];
 
     for (let scrappedProduct of scrappedProducts) {
       const initial_quantity = scrappedProduct.quantity;
@@ -124,14 +120,14 @@ export function ProductQuantitiesProvider({
         product,
         checked: false,
       };
-      productQuantities.push(productQuantity);
+
+      newProductQtts.push(productQuantity);
     }
 
-    setProductQuantities(productQuantities);
-    setCount(productQuantities.length);
+    return newProductQtts;
   };
 
-  const updateProductQuantityAmount = ({
+  const updateNewProductQuantityAmount = ({
     amount,
     name,
   }: UpdateProductQuantityAmount) => {
@@ -316,25 +312,34 @@ export function ProductQuantitiesProvider({
     return response.data;
   };
 
-  const populateProductQuantities = async (productQtts: ProductQuantity[]) => {
+  const updateProductQuantities = async (productQtts: ProductQuantity[]) => {
     setProductQuantities(productQtts);
+    setCount(productQtts.length);
+  };
+
+  const updateNewProductQuantities = async (
+    newProductQtts: ProductQuantity[]
+  ) => {
+    setNewProductQuantities(newProductQtts);
   };
 
   return (
     <ProductQuantitiesContext.Provider
       value={{
         productQuantities,
+        newProductQuantities,
         count,
         allChecked,
-        updateFirstListProductQuantities,
-        updateProductQuantityAmount,
+        generateScrappedProductQuantities,
+        updateNewProductQuantityAmount,
         updateProductQuantityCheck,
         updateSingleProduct,
         removeProductQuantity,
         createBatchProductQuantities,
         fetchProductQuantities,
         generateSuggestions,
-        populateProductQuantities,
+        updateProductQuantities,
+        updateNewProductQuantities,
       }}
     >
       {children}

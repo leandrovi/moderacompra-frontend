@@ -34,23 +34,24 @@ export function EditList() {
   const [isLoading, setIsLoading] = useState(true);
 
   const { url, listContext } = routes.params as EditListParams;
-  const { newList, currentList, isFirstList, createList } = useLists();
-  const { updateFirstListProducts, createBatchProducts } = useProducts();
+  const { currentList, isFirstList, createList } = useLists();
+  const { createBatchProducts } = useProducts();
   const {
-    updateFirstListProductQuantities,
-    productQuantities,
+    generateScrappedProductQuantities,
+    newProductQuantities,
     createBatchProductQuantities,
+    updateNewProductQuantities,
   } = useProductQuantities();
-
-  const list = listContext === "newListEdition" ? newList : currentList;
 
   async function fetchScrappedProducts() {
     try {
       const response = await api.post("/scrap", { url_nfce: url });
       const scrappedProducts: ScrappedProduct[] = response.data.products;
 
-      updateFirstListProducts(scrappedProducts);
-      updateFirstListProductQuantities(scrappedProducts);
+      const newProductQtts =
+        generateScrappedProductQuantities(scrappedProducts);
+
+      updateNewProductQuantities(newProductQtts);
     } catch (error) {
       console.log(error);
     } finally {
@@ -72,31 +73,33 @@ export function EditList() {
   }, []);
 
   function handleOnCancel() {
-    listContext === "newListEdition"
-      ? navigation.navigate("Home")
-      : navigation.goBack();
+    updateNewProductQuantities([]);
+
+    if (listContext === "currentListEdition") {
+      navigation.goBack();
+    } else {
+      isFirstList ? navigation.navigate("QRScan") : navigation.navigate("Home");
+    }
   }
 
   async function handleOnSave() {
     setIsLoading(true);
 
     try {
-      const persistedList =
-        listContext === "newListEdition" ? await createList() : list;
-
-      const persistedProducts = await createBatchProducts(productQuantities);
-
-      await createBatchProductQuantities({
-        list: persistedList,
-        products: persistedProducts,
-      });
-
-      navigation.navigate("Home");
+      // const persistedList =
+      //   listContext === "newListEdition" ? await createList() : list;
+      // const persistedProducts = await createBatchProducts(productQuantities);
+      // await createBatchProductQuantities({
+      //   list: persistedList,
+      //   products: persistedProducts,
+      // });
     } catch (err) {
       console.log(err);
     } finally {
       setIsLoading(false);
     }
+
+    navigation.navigate("Home");
   }
 
   if (isLoading) {
@@ -115,7 +118,7 @@ export function EditList() {
         </View>
       </View>
 
-      <ProductList isEditMode={true} list={list} />
+      {/* <ProductList isEditMode={true} list={currentList} /> */}
     </View>
   );
 }
