@@ -78,6 +78,8 @@ export function ListsProvider({ children }: ListsProviderProps) {
       setCurrentList(list);
       setLists(updatedLists);
 
+      if (isFirstList) setIsFirstList(false);
+
       return list;
     } catch (err) {
       console.log(err);

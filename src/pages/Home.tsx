@@ -23,10 +23,13 @@ import { Loader } from "../components/Loader";
 // Styles
 import colors from "../styles/colors";
 import fonts from "../styles/fonts";
+import { ModeraModal } from "../components/ModeraModal";
 
 export function Home() {
   const navigation = useNavigation();
   const [listsLoaded, setListsLoaded] = useState(false);
+  const [pendingListModalVisible, setPendingListModalVisible] = useState(false);
+  const [openListModalVisible, setOpenListModalVisible] = useState(false);
 
   const { fetchAllLists, isFirstList, currentList } = useLists();
   const { fetchProducts } = useProducts();
@@ -48,9 +51,18 @@ export function Home() {
   }, []);
 
   function handleNewList() {
-    isFirstList
-      ? navigation.navigate("NewFirstList")
-      : navigation.navigate("NewList");
+    if (isFirstList) {
+      navigation.navigate("NewFirstList");
+    } else if (currentList) {
+      if (currentList.status.description === "pendente") {
+        setPendingListModalVisible(true);
+      } else if (currentList.status.description === "em aberto") {
+        setOpenListModalVisible(true);
+        navigation.navigate("CurrentList");
+      } else {
+        navigation.navigate("EditList", { listContext: "newListEdition" });
+      }
+    }
   }
 
   if (!listsLoaded) {
@@ -87,20 +99,30 @@ export function Home() {
         <Text style={[styles.text, { marginBottom: 0 }]}>Nova Lista</Text>
       </TouchableOpacity>
 
-      {/* <TouchableOpacity
-        onPress={() =>
-          navigation.navigate("EditList", {
-            url: "https://www.nfce.fazenda.sp.gov.br/qrcode?p=35210560479680001090651050001600861259534072|2|1|1|643A34EFA0FBBF88AC6EFBB323D294586190ACAF",
-            listContext: "newListEdition",
-          })
-        }
-      >
-        <Text>TESTE</Text>
-      </TouchableOpacity> */}
-
       <StatusBar
         style={Platform.OS === "android" ? "light" : "dark"}
         backgroundColor={colors.darkGray}
+      />
+
+      <ModeraModal
+        visible={pendingListModalVisible}
+        type="error"
+        title="Lista pendente =("
+        text="Você não pode criar novas listas enquanto tiver uma lista pendente."
+        actionText="OK"
+        onActionPress={() => setPendingListModalVisible(false)}
+      />
+
+      <ModeraModal
+        visible={openListModalVisible}
+        type="warning"
+        title="Atualizar lista anterior"
+        text="Para criar uma nova lista você só precisa fechar a sua lista em aberto."
+        actionText="VAMOS LÁ"
+        onActionPress={() => {
+          setOpenListModalVisible(false);
+          navigation.navigate("CurrentList");
+        }}
       />
     </View>
   );

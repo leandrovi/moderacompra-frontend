@@ -279,17 +279,20 @@ export function ProductQuantitiesProvider({
   };
 
   const useSuggestedProductQuantitiesForNewList = () => {
-    const suggestedProductQuantities: ProductQuantity[] = productQuantities.map(
-      (productQuantity) =>
-        ({
-          initial_quantity: productQuantity.suggestion_quantity,
-          suggestion_quantity: 0,
-          final_quantity: 0,
-          product: productQuantity.product,
-          unity: productQuantity.unity,
-          checked: false,
-        } as ProductQuantity)
-    );
+    const currentProductQuantities = [...productQuantities];
+
+    const suggestedProductQuantities: ProductQuantity[] =
+      currentProductQuantities.map(
+        (productQuantity) =>
+          ({
+            initial_quantity: productQuantity.suggestion_quantity,
+            suggestion_quantity: 0,
+            final_quantity: 0,
+            product: productQuantity.product,
+            unity: productQuantity.unity,
+            checked: false,
+          } as ProductQuantity)
+      );
 
     setNewProductQuantities(suggestedProductQuantities);
   };

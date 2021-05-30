@@ -22,6 +22,7 @@ import colors from "../styles/colors";
 
 // Interfaces
 import { ScrappedProduct } from "../interfaces";
+import { ModeraModal } from "../components/ModeraModal";
 
 interface EditListParams {
   url?: string;
@@ -32,9 +33,10 @@ export function EditList() {
   const routes = useRoute();
   const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(true);
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
 
   const { url, listContext } = routes.params as EditListParams;
-  const { currentList, isFirstList, createList } = useLists();
+  const { isFirstList, createList } = useLists();
   const { verifyNewProducts, createBatchProducts, products } = useProducts();
   const {
     newProductQuantities,
@@ -86,8 +88,8 @@ export function EditList() {
     setIsLoading(true);
 
     try {
-      // Check if there are new products
       const newProducts = verifyNewProducts(newProductQuantities);
+
       let updatedProducts = products;
 
       if (newProducts.length > 0) {
@@ -100,15 +102,15 @@ export function EditList() {
         const list = await createList();
         await createBatchProductQuantities({ list, products: updatedProducts });
       }
+
+      updateNewProductQuantities([]);
+      setIsLoading(false);
+      navigation.navigate("Home");
     } catch (err) {
       console.log(err);
-      Alert.alert("Erro!", err);
-    } finally {
-      setIsLoading(false);
       updateNewProductQuantities([]);
+      setErrorModalVisible(true);
     }
-
-    navigation.navigate("Home");
   }
 
   if (isLoading) {
@@ -128,6 +130,19 @@ export function EditList() {
       </View>
 
       <ProductList isEditMode={true} />
+
+      <ModeraModal
+        visible={errorModalVisible}
+        type="error"
+        title="Ops!"
+        text="Desculpe! Houve um erro ao criar a lista, tente novamente mais tarde."
+        actionText="OK"
+        onActionPress={() => {
+          setErrorModalVisible(false);
+          setIsLoading(false);
+          navigation.navigate("Home");
+        }}
+      />
     </View>
   );
 }
