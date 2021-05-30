@@ -10,8 +10,10 @@ import { NewList } from "../pages/NewList";
 import { CreateFirstList } from "../pages/CreateFirstList";
 import { CurrentList } from "../pages/CurrentList";
 import { Lists } from "../pages/Lists";
+import { Login } from "../pages/Login";
 
 import colors from "../styles/colors";
+import { Register } from "../pages/Register";
 
 const tabRoutes = createBottomTabNavigator();
 
@@ -93,6 +95,26 @@ const TabRoutes: React.FC = () => {
               size={size}
               color={color}
             />
+          ),
+        }}
+      />
+
+      <tabRoutes.Screen
+        name="Login"
+        component={Login}
+        options={{
+          tabBarIcon: ({ size, color }) => (
+            <MaterialIcons name="login" size={size} color={color} />
+          ),
+        }}
+      />
+
+      <tabRoutes.Screen
+        name={`Criar`}
+        component={Register}
+        options={{
+          tabBarIcon: ({ size, color }) => (
+            <MaterialIcons name="app-registration" size={size} color={color} />
           ),
         }}
       />
