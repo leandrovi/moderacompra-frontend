@@ -5,16 +5,20 @@ import api from "../services/api";
 
 import { List } from "../interfaces";
 
+interface FetchAllListsResponse {
+  isTheFirstList: boolean;
+  mostRecentList?: List;
+}
+
 interface ListsProviderProps {
   children: ReactNode;
 }
 
 interface ListsContextData {
-  newList: List;
-  currentList: List;
+  currentList: List | null;
   isFirstList: boolean;
-  initializeNewList: () => void;
-  setListsHistory: (offset?: number) => Promise<void>;
+  lists: List[];
+  fetchAllLists: (offset?: number) => Promise<FetchAllListsResponse>;
   createList: () => Promise<List>;
   finalizeList: () => Promise<void>;
 }
@@ -22,49 +26,45 @@ interface ListsContextData {
 const ListsContext = createContext<ListsContextData>({} as ListsContextData);
 
 export function ListsProvider({ children }: ListsProviderProps) {
-  const [newList, setNewList] = useState<List>({} as List);
-  const [currentList, setCurrentList] = useState<List>({} as List);
+  const [currentList, setCurrentList] = useState<List | null>(null);
   const [isFirstList, setIsFirstList] = useState(false);
   const [lists, setLists] = useState<List[]>([]);
 
-  // Used to create empty lists before we post to the backend
-  const initializeNewList = () => {
-    setNewList({
-      status: {
-        description: "pendente",
-      },
-    });
-  };
-
-  const setListsHistory = async (offset: number = 0) => {
+  const fetchAllLists = async (
+    offset: number = 0
+  ): Promise<FetchAllListsResponse> => {
     const params = `offset=${offset}&order=created_at,desc`;
     const response = await api.get(`/lists?${params}`);
 
-    console.log("History fetched:", response.data);
+    console.log("All lists fetched:", response.data);
 
     const { rows } = response.data;
     const count = rows.length;
+    let isTheFirstList = false;
 
     setLists(rows);
 
+    // if most recent list exists
     if (count > 0) {
       const mostRecentList: List = rows[0];
+      setIsFirstList(isTheFirstList);
+      setCurrentList(mostRecentList);
 
-      if (mostRecentList.status.description !== "finalizada") {
-        console.log("Most recent list:", mostRecentList);
-        setCurrentList(mostRecentList);
-      } else {
-        setCurrentList({} as List);
-      }
-
-      setIsFirstList(false);
+      return {
+        isTheFirstList,
+        mostRecentList,
+      };
     } else {
-      setIsFirstList(true);
-      initializeNewList();
+      isTheFirstList = true;
+      setIsFirstList(isTheFirstList);
+      setCurrentList(null);
+
+      return {
+        isTheFirstList,
+      };
     }
   };
 
-  // Creates the list in the backend
   const createList = async (): Promise<List> => {
     try {
       const response = await api.post("/lists", {
@@ -72,11 +72,11 @@ export function ListsProvider({ children }: ListsProviderProps) {
       });
 
       const list = response.data;
+      const updatedLists = [...lists];
 
+      updatedLists.unshift(list);
       setCurrentList(list);
-      setNewList({} as List);
-
-      console.log(list);
+      setLists(updatedLists);
 
       return list;
     } catch (err) {
@@ -86,21 +86,22 @@ export function ListsProvider({ children }: ListsProviderProps) {
   };
 
   const finalizeList = async (): Promise<void> => {
-    await api.put(`/lists/${currentList.id}`, {
-      is_status: 3,
+    const response = await api.put(`/lists/${currentList?.id}`, {
+      is_status: 2,
     });
 
-    setCurrentList({} as List);
+    console.log("Updated list:", response);
+
+    setCurrentList(response.data);
   };
 
   return (
     <ListsContext.Provider
       value={{
-        newList,
         currentList,
         isFirstList,
-        initializeNewList,
-        setListsHistory,
+        lists,
+        fetchAllLists,
         createList,
         finalizeList,
       }}

@@ -3,11 +3,8 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MaterialIcons } from "@expo/vector-icons";
 import { ifIphoneX } from "react-native-iphone-x-helper";
 
-import { useLists } from "../hooks/useLists";
-
 import { Home } from "../pages/Home";
 import { NewList } from "../pages/NewList";
-import { CreateFirstList } from "../pages/CreateFirstList";
 import { CurrentList } from "../pages/CurrentList";
 import { Lists } from "../pages/Lists";
 
@@ -16,10 +13,6 @@ import colors from "../styles/colors";
 const tabRoutes = createBottomTabNavigator();
 
 const TabRoutes: React.FC = () => {
-  const { currentList } = useLists();
-
-  const isFirstList = currentList.status ? false : true;
-
   return (
     <tabRoutes.Navigator
       sceneContainerStyle={{
@@ -59,7 +52,7 @@ const TabRoutes: React.FC = () => {
       />
       <tabRoutes.Screen
         name="Nova Lista"
-        component={isFirstList ? CreateFirstList : NewList}
+        component={NewList}
         options={{
           tabBarIcon: ({ size, color }) => (
             <MaterialIcons

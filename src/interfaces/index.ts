@@ -43,8 +43,8 @@ export interface ProductQuantity {
 }
 
 export interface List {
-  id?: string;
-  user_id?: string;
+  id: string;
+  user_id: string;
   status: Status;
   product_quantities?: ProductQuantity[];
   createdAt?: Date;

@@ -3,16 +3,16 @@ import {
   StyleSheet,
   View,
   Text,
-  Image,
   Platform,
   TouchableOpacity,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 
 // Hooks
 import { useLists } from "../hooks/useLists";
 import { useProductQuantities } from "../hooks/useProductQuantities";
+import { useProducts } from "../hooks/useProducts";
 
 // Components
 import { Info } from "../components/Info";
@@ -26,22 +26,25 @@ import fonts from "../styles/fonts";
 export function Home() {
   const navigation = useNavigation();
   const [listsLoaded, setListsLoaded] = useState(false);
-  const { setListsHistory, isFirstList, currentList } = useLists();
 
-  async function fetchListsHistory() {
-    await setListsHistory();
+  const { fetchAllLists, isFirstList, currentList } = useLists();
+  const { fetchProducts } = useProducts();
+  const { fetchProductQuantities } = useProductQuantities();
+
+  async function fetchListsAndProducts() {
+    const { isTheFirstList, mostRecentList } = await fetchAllLists();
+    await fetchProducts();
+
+    if (!isTheFirstList && mostRecentList) {
+      await fetchProductQuantities(mostRecentList.id);
+    }
+
     setListsLoaded(true);
   }
 
   useEffect(() => {
-    fetchListsHistory();
+    fetchListsAndProducts();
   }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      fetchListsHistory();
-    }, [])
-  );
 
   if (!listsLoaded) {
     return <Loader />;

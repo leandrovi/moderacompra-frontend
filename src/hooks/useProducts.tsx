@@ -23,6 +23,8 @@ interface ProductsContextData {
   products: Product[];
   currentListProducts: Product[];
 
+  fetchProducts: () => Promise<void>;
+
   updateFirstListProducts: (scrappedProducts: ScrappedProduct[]) => void;
 
   addProductToCurrentList: ({
@@ -45,14 +47,12 @@ export function ProductsProvider({ children }: ProductsProviderProps) {
   const [products, setProducts] = useState<Product[]>([]); // Empty in first list
   const [currentListProducts, setCurrentListProducts] = useState<Product[]>([]);
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  async function fetchProducts() {
+  const fetchProducts = async () => {
     const response = await api.get("products");
     setProducts(response.data.rows);
-  }
+
+    console.log("All products fetched:", response.data);
+  };
 
   const updateFirstListProducts = (productList: ScrappedProduct[]) => {
     const products: Product[] = [];
@@ -139,6 +139,7 @@ export function ProductsProvider({ children }: ProductsProviderProps) {
       value={{
         products,
         currentListProducts,
+        fetchProducts,
         updateFirstListProducts,
         addProductToCurrentList,
         removeProductFromCurrentList,

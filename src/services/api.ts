@@ -1,7 +1,7 @@
 import axios from "axios";
 
-// const baseURL = "http://localhost:3333"; // local (dev)
-const baseURL = "https://secret-lowlands-42826.herokuapp.com"; // staging
+const baseURL = "http://192.168.0.20:3333"; // local (dev)
+// const baseURL = "https://secret-lowlands-42826.herokuapp.com"; // staging
 // const baseURL = "https://api-moderacompra.herokuapp.com"; // prod
 
 const hardCodedToken =
