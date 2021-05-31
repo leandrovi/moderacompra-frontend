@@ -19,6 +19,9 @@ import fonts from "../styles/fonts";
 export function Register() {
   const navigation = useNavigation();
 
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
+  const [successModalVisible, setSuccessModalVisible] = useState(false);
+
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -68,6 +71,14 @@ export function Register() {
     setEmail("");
     setPassword("");
     setConfirmPassword("");
+  }
+
+  function handleErrorModalAction() {
+    setErrorModalVisible(false);
+  }
+
+  function handleSuccessModalAction() {
+    navigation.navigate("SignIn");
   }
 
   return (

@@ -17,11 +17,14 @@ import { NewFirstList } from "../pages/NewFirstList";
 import colors from "../styles/colors";
 import { Platform } from "react-native";
 import { Login } from "../pages/Login";
+import { Register } from "../pages/Register";
 
 const stackRoutes = createStackNavigator();
+const isUserLoggedIn = false;
 
 const AppRoutes: React.FC = () => (
   <stackRoutes.Navigator
+    initialRouteName={isUserLoggedIn ? "HomeRoutes" : "SignIn"}
     headerMode="none"
     screenOptions={{
       cardStyle: {
@@ -29,6 +32,9 @@ const AppRoutes: React.FC = () => (
       },
     }}
   >
+    <stackRoutes.Screen name="SignIn" component={Login} />
+    <stackRoutes.Screen name="SignUp" component={Register} />
+
     <stackRoutes.Screen name="HomeRoutes" component={TabRoutes} />
     <stackRoutes.Screen
       name="ScanFirstList"
@@ -41,7 +47,6 @@ const AppRoutes: React.FC = () => (
     <stackRoutes.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
     <stackRoutes.Screen name="ProductDetails" component={ProductDetails} />
     <stackRoutes.Screen name="NewFirstList" component={NewFirstList} />
-    <stackRoutes.Screen name="Login" component={Login} />
   </stackRoutes.Navigator>
 );
 
