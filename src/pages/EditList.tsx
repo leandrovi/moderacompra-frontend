@@ -1,6 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { StyleSheet, View, Text, ScrollView, Alert } from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/core";
+import React, { useCallback, useState, useEffect } from "react";
+import { StyleSheet, View } from "react-native";
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/core";
 import { getStatusBarHeight } from "react-native-iphone-x-helper";
 
 // Hooks
@@ -67,16 +71,17 @@ export function EditList() {
   useEffect(() => {
     if (listContext === "currentListEdition") {
       updateNewProductQuantities(productQuantities);
+      setIsLoading(false);
     } else {
       isFirstList
         ? fetchScrappedProducts()
         : useSuggestedProductQuantitiesForNewList();
+
+      setIsLoading(false);
     }
   }, []);
 
   function handleOnCancel() {
-    updateNewProductQuantities([]);
-
     if (listContext === "currentListEdition") {
       navigation.goBack();
     } else {
@@ -100,15 +105,17 @@ export function EditList() {
         await updateBatchProductQuantities(updatedProducts);
       } else {
         const list = await createList();
-        await createBatchProductQuantities({ list, products: updatedProducts });
+        await createBatchProductQuantities({
+          list,
+          products: updatedProducts,
+          isFirstList,
+        });
       }
 
-      updateNewProductQuantities([]);
-      setIsLoading(false);
       navigation.navigate("Home");
+      // setIsLoading(false);
     } catch (err) {
       console.log(err);
-      updateNewProductQuantities([]);
       setErrorModalVisible(true);
     }
   }
@@ -129,7 +136,7 @@ export function EditList() {
         </View>
       </View>
 
-      <ProductList isEditMode={true} />
+      <ProductList isEditMode={true} productQuantities={newProductQuantities} />
 
       <ModeraModal
         visible={errorModalVisible}

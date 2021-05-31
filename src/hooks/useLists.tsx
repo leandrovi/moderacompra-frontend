@@ -71,11 +71,21 @@ export function ListsProvider({ children }: ListsProviderProps) {
         isFirstList,
       });
 
+      console.log("Created list:", response.data);
+
       const list = response.data;
+      const normalizedList: List = {
+        ...list,
+        status: {
+          id: list.id_status,
+          description: setStatus(list.id_status),
+        },
+      };
+
       const updatedLists = [...lists];
 
-      updatedLists.unshift(list);
-      setCurrentList(list);
+      updatedLists.unshift(normalizedList);
+      setCurrentList(normalizedList);
       setLists(updatedLists);
 
       if (isFirstList) setIsFirstList(false);
@@ -88,13 +98,27 @@ export function ListsProvider({ children }: ListsProviderProps) {
   };
 
   const finalizeList = async (): Promise<void> => {
-    const response = await api.put(`/lists/${currentList?.id}`, {
-      is_status: 2,
-    });
+    try {
+      const response = await api.put(`/lists/${currentList?.id}`, {
+        id_status: 2,
+      });
 
-    console.log("Updated list:", response);
+      console.log("Updated list:", response.data);
 
-    setCurrentList(response.data);
+      const list: List = {
+        ...response.data,
+        status: {
+          id: response.data.id_status,
+          description: setStatus(response.data.id_status),
+        },
+      };
+
+      setCurrentList(list);
+      if (isFirstList) setIsFirstList(false);
+    } catch (err) {
+      console.log(err);
+      return err;
+    }
   };
 
   return (
@@ -117,4 +141,17 @@ export function useLists() {
   const context = useContext(ListsContext);
 
   return context;
+}
+
+function setStatus(id: number) {
+  switch (id) {
+    case 0:
+      return "pendente";
+    case 1:
+      return "em aberto";
+    case 2:
+      return "finalizada";
+    default:
+      return "pendente";
+  }
 }

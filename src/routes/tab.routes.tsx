@@ -77,26 +77,6 @@ const TabRoutes: React.FC = () => {
           ),
         }}
       />
-
-      <tabRoutes.Screen
-        name="Login"
-        component={Login}
-        options={{
-          tabBarIcon: ({ size, color }) => (
-            <MaterialIcons name="login" size={size} color={color} />
-          ),
-        }}
-      />
-
-      <tabRoutes.Screen
-        name={`Criar`}
-        component={Register}
-        options={{
-          tabBarIcon: ({ size, color }) => (
-            <MaterialIcons name="app-registration" size={size} color={color} />
-          ),
-        }}
-      />
     </tabRoutes.Navigator>
   );
 };

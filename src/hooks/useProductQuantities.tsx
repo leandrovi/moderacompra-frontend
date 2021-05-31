@@ -23,6 +23,7 @@ interface UpdateProductQuantityCheck {
 interface CreateBatchProductQuantities {
   list: List;
   products: Product[];
+  isFirstList: boolean;
 }
 
 interface CreateProductQuantityPayload {
@@ -94,6 +95,7 @@ interface ProductQuantitiesContextData {
   fetchProductQuantities: (list_id: string) => Promise<void>;
   generateSuggestions: () => Promise<ProductQuantity[]>;
   updateProductQuantities: (productQttts: ProductQuantity[]) => void;
+  updateFinalProductQuantities: (productQttts: ProductQuantity[]) => void;
   updateNewProductQuantities: (productQttts: ProductQuantity[]) => void;
   useSuggestedProductQuantitiesForNewList: () => void;
   addSingleProductQuantity: (data: AddSingleProductQuantity) => void;
@@ -170,7 +172,7 @@ export function ProductQuantitiesProvider({
     checked,
     name,
   }: UpdateProductQuantityCheck) => {
-    const updatedProductQuantities = [...productQuantities];
+    const updatedProductQuantities = [...newProductQuantities];
 
     const productQuantityExists = updatedProductQuantities.find(
       (item) => item.product?.name === name
@@ -178,7 +180,7 @@ export function ProductQuantitiesProvider({
 
     if (productQuantityExists) {
       productQuantityExists.checked = checked;
-      setProductQuantities(updatedProductQuantities);
+      setNewProductQuantities(updatedProductQuantities);
 
       if (checked === false) {
         setAllChecked(false);
@@ -219,12 +221,15 @@ export function ProductQuantitiesProvider({
 
     if (response.data !== productQuantities) {
       setProductQuantities(response.data.rows);
+      setNewProductQuantities(response.data.rows);
+      setCount(response.data.rows.length);
     }
   };
 
   const createBatchProductQuantities = async ({
     list,
     products,
+    isFirstList,
   }: CreateBatchProductQuantities) => {
     try {
       const currentProductQuantities = [...newProductQuantities];
@@ -239,7 +244,7 @@ export function ProductQuantitiesProvider({
           list_id: list.id as string,
           product_id: product.id as string,
           name: product.name,
-          initial_quantity: productQuantity.initial_quantity,
+          initial_quantity: Number(productQuantity.initial_quantity),
           unity: productQuantity.unity,
         };
 
@@ -251,9 +256,22 @@ export function ProductQuantitiesProvider({
         createProductQuantitiesPayload
       );
 
-      setProductQuantities(response.data);
-      setCount(response.data.length);
-      setNewProductQuantities([]);
+      const normalizedProductQuantities = response.data.map(
+        (item: ProductQuantity) => {
+          const fullProduct = products.find(
+            (product) => product.id === item.product_id
+          );
+
+          return {
+            ...item,
+            product: fullProduct,
+          };
+        }
+      );
+
+      setNewProductQuantities(normalizedProductQuantities);
+      setProductQuantities(normalizedProductQuantities);
+      setCount(normalizedProductQuantities.length);
     } catch (err) {
       console.log(err);
       throw Error("Não foi possível salvar os produtos da lista.");
@@ -261,17 +279,65 @@ export function ProductQuantitiesProvider({
   };
 
   const generateSuggestions = async (): Promise<ProductQuantity[]> => {
-    const response = await api.put(
-      "/product-quantities/close",
-      productQuantities
-    );
+    try {
+      const consideredProducts = [...newProductQuantities];
+      const normalized = consideredProducts.map((productQuantity) => {
+        return {
+          id: productQuantity.id as string,
+          list_id: productQuantity.list_id as string,
+          product_id: productQuantity.product_id as string,
+          name: productQuantity.product?.name as string,
+          initial_quantity: Number(productQuantity.initial_quantity),
+          suggestion_quantity: Number(productQuantity.suggestion_quantity),
+          final_quantity: Number(productQuantity.final_quantity),
+          unity: productQuantity.unity,
+        };
+      });
 
-    return response.data;
+      console.log("Product Quantities to have suggestions:", normalized);
+
+      const response = await api.put("/product-quantities/close", normalized);
+
+      console.log("Suggestions Generated:", response.data);
+
+      return response.data;
+    } catch (err) {
+      console.log(err);
+      return err;
+    }
   };
 
   const updateProductQuantities = async (productQtts: ProductQuantity[]) => {
     setProductQuantities(productQtts);
+    setNewProductQuantities(productQtts);
     setCount(productQtts.length);
+  };
+
+  const updateFinalProductQuantities = async (
+    productQtts: ProductQuantity[]
+  ) => {
+    const pQuantities = [...newProductQuantities];
+
+    const normalizedProductQuantities: ProductQuantity[] = pQuantities.map(
+      (item) => {
+        const productQuantity = productQtts.find(
+          (productQtt) => productQtt.id === item.id
+        ) as ProductQuantity;
+
+        return {
+          ...productQuantity,
+          initial_quantity: Number(productQuantity.initial_quantity),
+          final_quantity: Number(productQuantity.final_quantity),
+          suggestion_quantity: Number(productQuantity.suggestion_quantity),
+          product: item.product,
+          unity: item.unity,
+        };
+      }
+    );
+
+    setProductQuantities(normalizedProductQuantities);
+    setNewProductQuantities(normalizedProductQuantities);
+    setCount(normalizedProductQuantities.length);
   };
 
   const updateNewProductQuantities = (newProductQtts: ProductQuantity[]) => {
@@ -285,7 +351,7 @@ export function ProductQuantitiesProvider({
       currentProductQuantities.map(
         (productQuantity) =>
           ({
-            initial_quantity: productQuantity.suggestion_quantity,
+            initial_quantity: Number(productQuantity.suggestion_quantity),
             suggestion_quantity: 0,
             final_quantity: 0,
             product: productQuantity.product,
@@ -293,6 +359,8 @@ export function ProductQuantitiesProvider({
             checked: false,
           } as ProductQuantity)
       );
+
+    console.log("New Product Quantities:", suggestedProductQuantities);
 
     setNewProductQuantities(suggestedProductQuantities);
   };
@@ -305,7 +373,7 @@ export function ProductQuantitiesProvider({
     const updatedNewProductQuantities = [...newProductQuantities];
 
     updatedNewProductQuantities.push({
-      initial_quantity: quantity,
+      initial_quantity: Number(quantity),
       unity: { description: unity },
       product,
     });
@@ -329,7 +397,7 @@ export function ProductQuantitiesProvider({
       const index = updatedNewProductQuantities.indexOf(productQuantityExists);
 
       updatedNewProductQuantities[index] = {
-        initial_quantity: quantity,
+        initial_quantity: Number(quantity),
         unity: { description: unity },
         product: product !== newProduct ? newProduct : product,
       };
@@ -343,7 +411,6 @@ export function ProductQuantitiesProvider({
     final_quantity,
   }: UpdateSingleProductFinalQuantity) => {
     const updatedNewProductQuantities = [...newProductQuantities];
-
     const productQuantityExists = updatedNewProductQuantities.find(
       (item) => item.id === id
     );
@@ -374,7 +441,7 @@ export function ProductQuantitiesProvider({
         list_id: productQuantity.list_id as string,
         product_id: product.id as string,
         name: product.name,
-        initial_quantity: productQuantity.initial_quantity,
+        initial_quantity: Number(productQuantity.initial_quantity),
         unity: productQuantity.unity,
       };
 
@@ -386,9 +453,9 @@ export function ProductQuantitiesProvider({
       updateProductQuantitiesPayload
     );
 
+    setNewProductQuantities(response.data);
     setProductQuantities(response.data);
     setCount(response.data.length);
-    setNewProductQuantities([]);
   };
 
   return (
@@ -406,6 +473,7 @@ export function ProductQuantitiesProvider({
         fetchProductQuantities,
         generateSuggestions,
         updateProductQuantities,
+        updateFinalProductQuantities,
         updateNewProductQuantities,
         useSuggestedProductQuantitiesForNewList,
         addSingleProductQuantity,

@@ -122,7 +122,6 @@ export function ProductDetails() {
     if (productExists) setSelectedProduct(productExists);
 
     setSelectedProductName(productName);
-    setFilteredProducts([]);
   }
 
   function handleQuantityChange(text: string) {
@@ -136,7 +135,7 @@ export function ProductDetails() {
   async function handleProductSave() {
     if (isFinalQuantity) {
       updateSingleProductFinalQuantity({
-        id: productQuantity.id,
+        id: productQuantity.id as string,
         final_quantity: quantity,
       });
     } else if (mode === "add") {
@@ -285,7 +284,11 @@ export function ProductDetails() {
               )}
 
               <View style={styles.buttonWrapper}>
-                <Button text="SALVAR" onPress={handleProductSave} />
+                <Button
+                  text="SALVAR"
+                  onPress={handleProductSave}
+                  disabled={selectedProductName.length === 0}
+                />
               </View>
             </View>
           </View>

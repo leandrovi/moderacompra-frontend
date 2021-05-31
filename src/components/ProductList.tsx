@@ -5,6 +5,7 @@ import {
   Text,
   FlatList,
   TouchableOpacity,
+  LogBox,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { getBottomSpace } from "react-native-iphone-x-helper";
@@ -22,13 +23,17 @@ import colors from "../styles/colors";
 import fonts from "../styles/fonts";
 
 // Interfaces
-import { List, ProductQuantity, Status } from "../interfaces";
+import { ProductQuantity, Status } from "../interfaces";
 
 interface ProductListProps {
   isEditMode?: boolean;
+  productQuantities: ProductQuantity[];
 }
 
-export function ProductList({ isEditMode = false }: ProductListProps) {
+export function ProductList({
+  isEditMode = false,
+  productQuantities,
+}: ProductListProps) {
   const navigation = useNavigation();
   const { currentList } = useLists();
 
@@ -37,10 +42,14 @@ export function ProductList({ isEditMode = false }: ProductListProps) {
   );
 
   const {
-    productQuantities,
-    newProductQuantities,
+    // productQuantities,
+    // newProductQuantities,
     updateProductQuantityCheck,
   } = useProductQuantities();
+
+  useEffect(() => {
+    LogBox.ignoreLogs(["VirtualizedLists should never be nested"]);
+  }, []);
 
   function handleAddNewProduct() {
     navigation.navigate("ProductDetails", { mode: "add", productQuantity: {} });
@@ -81,7 +90,7 @@ export function ProductList({ isEditMode = false }: ProductListProps) {
       </View>
 
       <FlatList
-        data={isEditMode ? newProductQuantities : productQuantities}
+        data={productQuantities}
         keyExtractor={(item) =>
           item.product?.id ? item.product.id : String(Math.random() * 100 + 1)
         }
