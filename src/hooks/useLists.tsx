@@ -37,8 +37,6 @@ export function ListsProvider({ children }: ListsProviderProps) {
     const params = `offset=${offset}&order=created_at,desc`;
     const response = await api.get(`/lists?${params}`);
 
-    console.log("All lists fetched:", response.data);
-
     const { rows } = response.data;
     const count = rows.length;
     let isTheFirstList = false;
@@ -73,8 +71,6 @@ export function ListsProvider({ children }: ListsProviderProps) {
         id_status: isFirstList ? null : 0,
       });
 
-      console.log("Created list:", response.data);
-
       const list = response.data;
 
       const normalizedList: List = {
@@ -93,9 +89,6 @@ export function ListsProvider({ children }: ListsProviderProps) {
 
       if (isFirstList) setIsFirstList(false);
 
-      console.log("Normalized Created List:", normalizedList);
-      console.log("Updated Lists:", updatedLists);
-
       return list;
     } catch (err) {
       console.log(err);
@@ -108,8 +101,6 @@ export function ListsProvider({ children }: ListsProviderProps) {
       const response = await api.put(`/lists/${currentList?.id}`, {
         id_status: 2,
       });
-
-      console.log("Updated list:", response.data);
 
       const list: List = {
         ...response.data,
@@ -131,8 +122,6 @@ export function ListsProvider({ children }: ListsProviderProps) {
 
       setCurrentList(list);
       setLists(updatedLists);
-      console.log("Current List:", list);
-      console.log("Updated Lists:", updatedLists);
     } catch (err) {
       console.log(err);
       return err;
@@ -144,8 +133,6 @@ export function ListsProvider({ children }: ListsProviderProps) {
       const response = await api.put(`/lists/${currentList?.id}`, {
         id_status: 1,
       });
-
-      console.log("Updated list:", response.data);
 
       const list: List = {
         ...response.data,

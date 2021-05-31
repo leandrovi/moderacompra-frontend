@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -43,11 +43,7 @@ export function ProductList({
 
   const isEditAndNotFirstList = isEditMode && !isFirstList;
 
-  const {
-    // productQuantities,
-    // newProductQuantities,
-    updateProductQuantityCheck,
-  } = useProductQuantities();
+  const { updateProductQuantityCheck } = useProductQuantities();
 
   useEffect(() => {
     LogBox.ignoreLogs(["VirtualizedLists should never be nested"]);

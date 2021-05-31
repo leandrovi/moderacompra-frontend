@@ -230,6 +230,7 @@ export function ProductQuantitiesProvider({
       setProductQuantities(normalizedProductQuantities);
       setNewProductQuantities(normalizedProductQuantities);
       setCount(normalizedProductQuantities.length);
+      setAllChecked(false);
     }
   };
 
@@ -284,11 +285,10 @@ export function ProductQuantitiesProvider({
         }
       );
 
-      console.log("Normalized:", normalizedProductQuantities);
-
       setNewProductQuantities(normalizedProductQuantities);
       setProductQuantities(normalizedProductQuantities);
       setCount(normalizedProductQuantities.length);
+      setAllChecked(false);
     } catch (err) {
       console.log(err);
       throw Error("Não foi possível salvar os produtos da lista.");
@@ -311,11 +311,7 @@ export function ProductQuantitiesProvider({
         };
       });
 
-      console.log("Product Quantities to have suggestions:", normalized);
-
       const response = await api.put("/product-quantities/close", normalized);
-
-      console.log("Suggestions Generated:", response.data);
 
       return response.data;
     } catch (err) {
@@ -328,6 +324,7 @@ export function ProductQuantitiesProvider({
     setProductQuantities(productQtts);
     setNewProductQuantities(productQtts);
     setCount(productQtts.length);
+    setAllChecked(false);
   };
 
   const updateFinalProductQuantities = async (
@@ -355,10 +352,12 @@ export function ProductQuantitiesProvider({
     setProductQuantities(normalizedProductQuantities);
     setNewProductQuantities(normalizedProductQuantities);
     setCount(normalizedProductQuantities.length);
+    setAllChecked(false);
   };
 
   const updateNewProductQuantities = (newProductQtts: ProductQuantity[]) => {
     setNewProductQuantities(newProductQtts);
+    setAllChecked(false);
   };
 
   const useSuggestedProductQuantitiesForNewList = () => {
@@ -377,9 +376,8 @@ export function ProductQuantitiesProvider({
           } as ProductQuantity)
       );
 
-    console.log("New Product Quantities:", suggestedProductQuantities);
-
     setNewProductQuantities(suggestedProductQuantities);
+    setAllChecked(false);
   };
 
   const addSingleProductQuantity = ({
@@ -393,9 +391,11 @@ export function ProductQuantitiesProvider({
       initial_quantity: Number(quantity),
       unity: { description: unity },
       product,
+      checked: false,
     });
 
     setNewProductQuantities(updatedNewProductQuantities);
+    setAllChecked(false);
   };
 
   const updateSingleProductQuantity = ({
@@ -414,13 +414,16 @@ export function ProductQuantitiesProvider({
       const index = updatedNewProductQuantities.indexOf(productQuantityExists);
 
       updatedNewProductQuantities[index] = {
+        ...productQuantityExists,
         initial_quantity: Number(quantity),
         unity: { description: unity },
         product: product !== newProduct ? newProduct : product,
+        checked: false,
       };
     }
 
     setNewProductQuantities(updatedNewProductQuantities);
+    setAllChecked(false);
   };
 
   const updateSingleProductFinalQuantity = ({
@@ -438,26 +441,37 @@ export function ProductQuantitiesProvider({
       updatedNewProductQuantities[index] = {
         ...productQuantityExists,
         final_quantity,
+        checked: false,
       };
     }
 
     setNewProductQuantities(updatedNewProductQuantities);
+    setAllChecked(false);
   };
 
   const updateBatchProductQuantities = async (products: Product[]) => {
     const updatedProductQuantities = [...newProductQuantities];
     const updateProductQuantitiesPayload: UpdateProductQuantityPayload[] = [];
 
+    console.log(
+      "Updated New Product Quantities inside Batch:",
+      updatedProductQuantities
+    );
+
     for (const productQuantity of updatedProductQuantities) {
       const product = products.find(
         (item) => item.name === productQuantity.product?.name
-      ) as Product;
+      );
 
       const payloadItem: UpdateProductQuantityPayload = {
         id: productQuantity.id as string,
         list_id: productQuantity.list_id as string,
-        product_id: product.id as string,
-        name: product.name,
+        product_id: product
+          ? (product.id as string)
+          : (productQuantity.product_id as string),
+        name: product
+          ? (product.name as string)
+          : (productQuantity.product?.name as string),
         initial_quantity: Number(productQuantity.initial_quantity),
         unity: productQuantity.unity,
       };
@@ -492,6 +506,7 @@ export function ProductQuantitiesProvider({
       }
     );
 
+    setAllChecked(false);
     setNewProductQuantities(normalizedProductQuantities);
     setProductQuantities(normalizedProductQuantities);
     setCount(normalizedProductQuantities.length);

@@ -48,7 +48,6 @@ export function Home() {
 
   useEffect(() => {
     fetchListsAndProducts();
-    console.log("Current List:", currentList);
   }, []);
 
   function handleNewList() {
