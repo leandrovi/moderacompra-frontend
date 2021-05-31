@@ -35,11 +35,13 @@ export function ProductList({
   productQuantities,
 }: ProductListProps) {
   const navigation = useNavigation();
-  const { currentList } = useLists();
+  const { currentList, isFirstList } = useLists();
 
   const [listStatus, setListStatus] = useState<Status>(() =>
     currentList ? currentList.status : { description: "pendente" }
   );
+
+  const isEditAndNotFirstList = isEditMode && !isFirstList;
 
   const {
     // productQuantities,
@@ -88,6 +90,12 @@ export function ProductList({
           </TouchableOpacity>
         )}
       </View>
+
+      {isEditAndNotFirstList && (
+        <Text style={styles.suggestions_tip}>
+          As quantidades são baseadas {"\n"} em seu histórico de consumo! 🚀
+        </Text>
+      )}
 
       <FlatList
         data={productQuantities}
@@ -156,5 +164,18 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.gray,
     marginVertical: 8,
+  },
+
+  suggestions_tip: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    textAlign: "center",
+    fontFamily: fonts.textLight,
+    fontSize: 14,
+    lineHeight: 18,
+    color: colors.darkGreen,
+    marginBottom: 20,
   },
 });
