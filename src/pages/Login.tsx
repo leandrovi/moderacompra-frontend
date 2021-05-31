@@ -13,7 +13,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 
-import api from "../services/api";
+import { useAuth } from "../hooks/useAuth";
 
 import LoginPicture from "../assets/svgs/LoginPicture";
 
@@ -38,14 +38,14 @@ export function Login() {
   const [isPasswordInputFocused, setIsPasswordInputFocused] = useState(false);
   const [isPasswordInputFilled, setIsPasswordInputFilled] = useState(false);
 
+  const { authenticateUser } = useAuth();
+
   async function enterSession() {
     try {
       Keyboard.dismiss;
 
-      console.log("Email:", email);
-      console.log("Password:", password);
-      const response = await api.post("/sessions", { email, password });
-      console.log(response.data);
+      await authenticateUser({ email, password });
+      navigation.navigate("Home");
     } catch (error) {
       console.log(error);
       setErrorModalVisible(true);

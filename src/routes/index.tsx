@@ -3,10 +3,14 @@ import { NavigationContainer } from "@react-navigation/native";
 
 import AppRoutes from "./stack.routes";
 
-const Routes = () => {
+interface RoutesProps {
+  isUserLogged: boolean;
+}
+
+const Routes = ({ isUserLogged }: RoutesProps) => {
   return (
     <NavigationContainer>
-      <AppRoutes />
+      <AppRoutes isUserLogged={isUserLogged} />
     </NavigationContainer>
   );
 };

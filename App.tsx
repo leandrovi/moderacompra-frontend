@@ -1,6 +1,6 @@
 import "react-native-gesture-handler";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import AppLoading from "expo-app-loading";
 import {
   useFonts,
@@ -18,7 +18,24 @@ import { ListsProvider } from "./src/hooks/useLists";
 // Routes
 import Routes from "./src/routes";
 
+// Storage Service
+import { loadUser } from "./src/services/storage";
+
 export default function App() {
+  const [loadingUser, setLoadingUser] = useState(true);
+  const [isUserLogged, setIsUserLogged] = useState(false);
+
+  useEffect(() => {
+    async function loadStorageUser() {
+      const user = await loadUser();
+      console.log("Loaded user:", user);
+      user ? setIsUserLogged(true) : setIsUserLogged(false);
+      setLoadingUser(false);
+    }
+
+    loadStorageUser();
+  }, []);
+
   const [fontsLoaded] = useFonts({
     Nunito_300Light,
     Nunito_400Regular,
@@ -26,7 +43,7 @@ export default function App() {
     Nunito_700Bold,
   });
 
-  if (!fontsLoaded) {
+  if (!fontsLoaded || loadingUser) {
     return <AppLoading />;
   }
 
@@ -34,7 +51,7 @@ export default function App() {
     <ListsProvider>
       <ProductsProvider>
         <ProductQuantitiesProvider>
-          <Routes />
+          <Routes isUserLogged={isUserLogged} />
         </ProductQuantitiesProvider>
       </ProductsProvider>
     </ListsProvider>
