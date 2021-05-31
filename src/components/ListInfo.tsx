@@ -4,31 +4,42 @@ import React, { useEffect, useState } from "react";
 import { Info } from "./Info";
 
 // Interface
+import { Status } from "../interfaces";
+
 interface ListInfoProps {
-  status?: "pendente" | "em aberto" | "finalizada";
+  status?: Status | null;
 }
 
 export function ListInfo({ status }: ListInfoProps) {
-  const [infoType, setInfoType] =
-    useState<"green" | "orange" | "purple" | "blue">("orange");
-  const [text, setText] = useState("");
+  if (!status) {
+    return (
+      <Info
+        type="orange"
+        text="Sua lista ficará pendente até a confirmação após a compra"
+      />
+    );
+  }
 
-  useEffect(() => {
-    if (!status) {
-      setInfoType("orange");
-      setText("Sua lista ficará pendente até a confirmação após a compra");
-    }
+  if (status?.description === "finalizada") {
+  }
 
-    if (status === "pendente") {
-      setInfoType("purple");
-      setText("Sua lista ficará pendente até você voltar do mercado");
-    }
+  if (status?.description === "pendente") {
+    return (
+      <Info
+        type="purple"
+        text="Sua lista ficará pendente até você voltar do mercado"
+      />
+    );
+  }
 
-    if (status === "em aberto") {
-      setInfoType("blue");
-      setText("Antes da próxima lista, atualize o que sobrou da última compra");
-    }
-  }, []);
+  if (status?.description === "em aberto") {
+    return (
+      <Info
+        type="blue"
+        text="Antes da próxima lista, atualize o que sobrou da última compra"
+      />
+    );
+  }
 
-  return status !== "finalizada" ? <Info type={infoType} text={text} /> : <></>;
+  return <></>;
 }

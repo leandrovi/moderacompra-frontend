@@ -128,7 +128,7 @@ export function EditList() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <ListInfo />
+        <ListInfo status={null} />
 
         <View style={styles.buttonsWrapper}>
           <Button type="secondary" text="CANCELAR" onPress={handleOnCancel} />

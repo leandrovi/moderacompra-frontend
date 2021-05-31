@@ -1,4 +1,4 @@
-﻿import React from "react";
+﻿import React, { useState } from "react";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { StyleSheet, View, Text, Animated, Alert } from "react-native";
 import { RectButton, RectButtonProps } from "react-native-gesture-handler";
@@ -8,27 +8,38 @@ import { useNavigation } from "@react-navigation/core";
 
 // Hooks
 import { useProductQuantities } from "../hooks/useProductQuantities";
+import { useLists } from "../hooks/useLists";
 
 // Styles
 import colors from "../styles/colors";
 import fonts from "../styles/fonts";
 
 import { ProductQuantity, Status } from "../interfaces";
+import { useFocusEffect } from "@react-navigation/native";
 
 interface ProductCardProps extends RectButtonProps {
   isEditMode?: boolean;
-  status: Status;
   productQuantity: ProductQuantity;
 }
 
 export function ProductCard({
   isEditMode = false,
-  status,
   productQuantity,
   ...rest
 }: ProductCardProps) {
-  const { removeProductQuantity } = useProductQuantities();
   const navigation = useNavigation();
+  const { currentList, isFirstList } = useLists();
+  const { removeProductQuantity } = useProductQuantities();
+
+  const [listStatus, setListStatus] = useState<Status>(() =>
+    currentList ? currentList.status : { description: "pendente" }
+  );
+
+  useFocusEffect(() => {
+    if (currentList?.status && currentList.status !== listStatus) {
+      setListStatus(currentList.status);
+    }
+  });
 
   function renderCardIcon() {
     if (isEditMode) {
@@ -42,7 +53,7 @@ export function ProductCard({
       );
     }
 
-    if (status.description !== "finalizada") {
+    if (listStatus.description !== "finalizada") {
       if (!productQuantity.checked) {
         return (
           <MaterialIcons
@@ -89,7 +100,7 @@ export function ProductCard({
         </View>
 
         <View style={styles.quantityWrapper}>
-          {status?.description === "em aberto" ? (
+          {listStatus.description === "em aberto" ? (
             <>
               <RectButton
                 style={styles.newQuantity}

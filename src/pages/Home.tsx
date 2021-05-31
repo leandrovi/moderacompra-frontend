@@ -59,7 +59,6 @@ export function Home() {
         setPendingListModalVisible(true);
       } else if (currentList.status.description === "em aberto") {
         setOpenListModalVisible(true);
-        navigation.navigate("CurrentList");
       } else {
         navigation.navigate("EditList", { listContext: "newListEdition" });
       }
@@ -82,9 +81,60 @@ export function Home() {
             </Text>
 
             <Info
-              type="blue"
+              type="green"
               text='Você já pode importar a sua primeira lista em "Nova Lista"'
             />
+          </>
+        )}
+
+        {currentList?.status.description === "pendente" && (
+          <>
+            <Text style={styles.text}>
+              {`Sua atual lista está com${"\n"}o status ${
+                currentList.status.description
+              }`}
+            </Text>
+
+            <Text style={styles.text}>
+              Agora é só ir até o mercado{"\n"}e confirmar os itens da lista.
+            </Text>
+
+            <Info
+              type="purple"
+              text="Sua lista estará pendente até você voltar do mercado"
+            />
+          </>
+        )}
+
+        {currentList?.status.description === "em aberto" && (
+          <>
+            <Text style={styles.text}>
+              {`Sua atual lista está com${"\n"}o status ${
+                currentList.status.description
+              }`}
+            </Text>
+
+            <Text style={styles.text}>
+              Agora você pode relaxar e esperar{"\n"}a próxima compra para
+              fechar sua lista atual{"\n"}e gerar a próxima lista
+              automaticamente 🚀
+            </Text>
+
+            <Info
+              type="blue"
+              text="Antes da próxima lista, atualize
+              o que sobrou da última compra"
+            />
+          </>
+        )}
+
+        {currentList?.status.description === "finalizada" && (
+          <>
+            <Text style={styles.text}>
+              Parabéns!{"\n"}Você já pode gerar uma nova lista 🍻
+            </Text>
+
+            <Info type="green" text="Sua atual lista já está finalizada" />
           </>
         )}
       </View>
@@ -122,7 +172,7 @@ export function Home() {
         actionText="VAMOS LÁ"
         onActionPress={() => {
           setOpenListModalVisible(false);
-          navigation.navigate("CurrentList");
+          navigation.navigate("Lista Atual");
         }}
       />
     </View>

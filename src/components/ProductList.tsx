@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { getBottomSpace } from "react-native-iphone-x-helper";
-import { useNavigation } from "@react-navigation/core";
+import { useFocusEffect, useNavigation } from "@react-navigation/core";
 
 // Hooks
 import { useProductQuantities } from "../hooks/useProductQuantities";
@@ -52,6 +52,12 @@ export function ProductList({
   useEffect(() => {
     LogBox.ignoreLogs(["VirtualizedLists should never be nested"]);
   }, []);
+
+  useFocusEffect(() => {
+    if (currentList?.status && currentList.status !== listStatus) {
+      setListStatus(currentList.status);
+    }
+  });
 
   function handleAddNewProduct() {
     navigation.navigate("ProductDetails", { mode: "add", productQuantity: {} });
@@ -107,7 +113,6 @@ export function ProductList({
           <ProductCard
             isEditMode={isEditMode}
             productQuantity={item}
-            status={listStatus}
             onPress={() => handleProductQuantityPress(item)}
           />
         )}

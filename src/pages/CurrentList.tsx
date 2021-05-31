@@ -19,12 +19,25 @@ import { ModeraModal } from "../components/ModeraModal";
 import colors from "../styles/colors";
 import fonts from "../styles/fonts";
 
+// Interfaces
+import { Status } from "../interfaces";
+
 export function CurrentList() {
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
   const { currentList, finalizeList, confirmList } = useLists();
+
+  const [listStatus, setListStatus] = useState<Status>(() =>
+    currentList ? currentList.status : { description: "pendente" }
+  );
+
+  useFocusEffect(() => {
+    if (currentList?.status && currentList.status !== listStatus) {
+      setListStatus(currentList.status);
+    }
+  });
 
   const {
     productQuantities,
@@ -59,7 +72,7 @@ export function CurrentList() {
   }
 
   function handleListControls() {
-    if (currentList?.status.description === "em aberto") {
+    if (listStatus.description === "em aberto") {
       return (
         <View style={styles.controls}>
           <Button
@@ -71,7 +84,7 @@ export function CurrentList() {
       );
     }
 
-    if (currentList?.status.description === "pendente") {
+    if (listStatus.description === "pendente") {
       return (
         <View style={styles.controls}>
           <Button
@@ -106,6 +119,12 @@ export function CurrentList() {
     }
   }, []);
 
+  useFocusEffect(() => {
+    if (currentList?.status && currentList.status !== listStatus) {
+      setListStatus(currentList.status);
+    }
+  });
+
   if (loading) {
     return <Loader />;
   }
@@ -121,7 +140,7 @@ export function CurrentList() {
           <View style={styles.content}>
             <Header
               firstLine="Lista"
-              secondLine={currentList?.status.description as string}
+              secondLine={listStatus.description as string}
             />
 
             <View style={styles.details}>
@@ -138,14 +157,14 @@ export function CurrentList() {
               </View>
             </View>
 
-            <ListInfo status={currentList?.status.description} />
+            <ListInfo status={listStatus} />
 
             {handleListControls()}
 
             <ProductList
               isEditMode={false}
               productQuantities={
-                currentList?.status.description === "finalizada"
+                listStatus.description === "finalizada"
                   ? productQuantities
                   : newProductQuantities
               }
