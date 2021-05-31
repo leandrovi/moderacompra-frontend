@@ -20,7 +20,7 @@ import { AuthProvider } from "./src/hooks/useAuth";
 import Routes from "./src/routes";
 
 // Storage Service
-import { loadUser } from "./src/services/storage";
+import { loadToken, loadUser } from "./src/services/storage";
 
 export default function App() {
   const [loadingUser, setLoadingUser] = useState(true);
@@ -29,8 +29,14 @@ export default function App() {
   useEffect(() => {
     async function loadStorageUser() {
       const user = await loadUser();
-      console.log("Loaded user:", user);
-      user ? setIsUserLogged(true) : setIsUserLogged(false);
+      const token = await loadToken();
+
+      if (user && token) {
+        setIsUserLogged(true);
+      } else {
+        setIsUserLogged(false);
+      }
+
       setLoadingUser(false);
     }
 

@@ -1,5 +1,6 @@
+import { useNavigation } from "@react-navigation/core";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View, Text, Image } from "react-native";
+import { StyleSheet, View, Text, Image, TouchableOpacity } from "react-native";
 import { getStatusBarHeight } from "react-native-iphone-x-helper";
 
 // Assets
@@ -15,6 +16,7 @@ interface HeaderProps {
 }
 
 export function Header({ firstLine, secondLine }: HeaderProps) {
+  const navigation = useNavigation();
   const { user } = useAuth();
 
   const [picture, setPicture] = useState(
@@ -32,7 +34,7 @@ export function Header({ firstLine, secondLine }: HeaderProps) {
 
       setName(user.name);
     }
-  }, []);
+  }, [user]);
 
   return (
     <View style={styles.header}>
@@ -41,7 +43,9 @@ export function Header({ firstLine, secondLine }: HeaderProps) {
         <Text style={styles.secondLine}>{secondLine ?? name}</Text>
       </View>
 
-      <Image source={{ uri: picture }} style={styles.image} />
+      <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+        <Image source={{ uri: picture }} style={styles.image} />
+      </TouchableOpacity>
     </View>
   );
 }
