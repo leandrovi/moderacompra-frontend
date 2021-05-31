@@ -28,7 +28,6 @@ import { BackButton } from "../components/BackButton";
 
 export function QRScan() {
   const navigation = useNavigation();
-  console.log("abri o scan");
 
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [type, setType] = useState<any>(BarCodeScanner.Constants.Type.back);
@@ -56,7 +55,6 @@ export function QRScan() {
   });
 
   function handleBarCodeScanned({ data, bounds }: BarCodeScannerResult) {
-    console.log("ta tentando...");
     if (!scanned) {
       const { origin } = bounds as {} as BarCodeBounds;
       const { x, y } = origin;
@@ -68,8 +66,6 @@ export function QRScan() {
         y <= viewMinY + finderHeight / 2
       ) {
         // TO-DO: show alert in case data is empty
-        console.log(data);
-
         setScanned(true);
 
         navigation.navigate("EditList", {

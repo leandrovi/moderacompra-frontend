@@ -1,9 +1,6 @@
 import { useNavigation } from "@react-navigation/core";
-import React, { useEffect } from "react";
+import React from "react";
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
-
-// Hooks
-import { useLists } from "../hooks/useLists";
 
 // Components
 import { Header } from "../components/Header";
@@ -13,14 +10,8 @@ import { Info } from "../components/Info";
 import colors from "../styles/colors";
 import fonts from "../styles/fonts";
 
-export function CreateFirstList() {
+export function NewFirstList() {
   const navigation = useNavigation();
-
-  const { initializeNewList } = useLists();
-
-  useEffect(() => {
-    initializeNewList();
-  }, []);
 
   function handleCreateFirstList() {
     navigation.navigate("ScanFirstList");

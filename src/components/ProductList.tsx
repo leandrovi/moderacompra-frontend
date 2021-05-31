@@ -5,10 +5,11 @@ import {
   Text,
   FlatList,
   TouchableOpacity,
+  LogBox,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { getBottomSpace } from "react-native-iphone-x-helper";
-import { useNavigation } from "@react-navigation/core";
+import { useFocusEffect, useNavigation } from "@react-navigation/core";
 
 // Hooks
 import { useProductQuantities } from "../hooks/useProductQuantities";
@@ -22,38 +23,53 @@ import colors from "../styles/colors";
 import fonts from "../styles/fonts";
 
 // Interfaces
-import { List, ProductQuantity } from "../interfaces";
+import { ProductQuantity, Status } from "../interfaces";
 
 interface ProductListProps {
   isEditMode?: boolean;
-  list: List;
+  productQuantities: ProductQuantity[];
 }
 
-export function ProductList({ isEditMode = false, list }: ProductListProps) {
+export function ProductList({
+  isEditMode = false,
+  productQuantities,
+}: ProductListProps) {
   const navigation = useNavigation();
+  const { currentList, isFirstList } = useLists();
 
-  const { isFirstList } = useLists();
+  const [listStatus, setListStatus] = useState<Status>(() =>
+    currentList ? currentList.status : { description: "pendente" }
+  );
 
-  const { productQuantities, updateProductQuantityCheck } =
-    useProductQuantities();
+  const isEditAndNotFirstList = isEditMode && !isFirstList;
 
-  console.log("ProductQuantities:", productQuantities);
+  const { updateProductQuantityCheck } = useProductQuantities();
 
-  function handleProductQuantitySelect(productQuantity: ProductQuantity) {
+  useEffect(() => {
+    LogBox.ignoreLogs(["VirtualizedLists should never be nested"]);
+  }, []);
+
+  useFocusEffect(() => {
+    if (currentList?.status && currentList.status !== listStatus) {
+      setListStatus(currentList.status);
+    }
+  });
+
+  function handleAddNewProduct() {
+    navigation.navigate("ProductDetails", { mode: "add", productQuantity: {} });
+  }
+
+  function handleProductQuantityPress(productQuantity: ProductQuantity) {
     if (isEditMode) {
       navigation.navigate("ProductDetails", { mode: "edit", productQuantity });
     } else {
-      if (list.status.description !== "finalizada") {
+      if (listStatus.description !== "finalizada") {
         updateProductQuantityCheck({
           checked: !productQuantity.checked,
           name: productQuantity.product?.name as string,
         });
       }
     }
-  }
-
-  function handleAddNewProduct() {
-    navigation.navigate("ProductDetails", { mode: "add", productQuantity: {} });
   }
 
   return (
@@ -77,6 +93,13 @@ export function ProductList({ isEditMode = false, list }: ProductListProps) {
         )}
       </View>
 
+      {isEditAndNotFirstList && (
+        <Text style={styles.suggestions_tip}>
+          As quantidades geradas abaixo são {"\n"} baseadas em seu histórico de
+          consumo! 🚀
+        </Text>
+      )}
+
       <FlatList
         data={productQuantities}
         keyExtractor={(item) =>
@@ -86,8 +109,7 @@ export function ProductList({ isEditMode = false, list }: ProductListProps) {
           <ProductCard
             isEditMode={isEditMode}
             productQuantity={item}
-            status={list.status}
-            onPress={() => handleProductQuantitySelect(item)}
+            onPress={() => handleProductQuantityPress(item)}
           />
         )}
         showsVerticalScrollIndicator={false}
@@ -144,5 +166,18 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.gray,
     marginVertical: 8,
+  },
+
+  suggestions_tip: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    textAlign: "center",
+    fontFamily: fonts.textLight,
+    fontSize: 14,
+    lineHeight: 18,
+    color: colors.darkGreen,
+    marginBottom: 20,
   },
 });

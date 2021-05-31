@@ -3,11 +3,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MaterialIcons } from "@expo/vector-icons";
 import { ifIphoneX } from "react-native-iphone-x-helper";
 
-import { useLists } from "../hooks/useLists";
-
 import { Home } from "../pages/Home";
-import { NewList } from "../pages/NewList";
-import { CreateFirstList } from "../pages/CreateFirstList";
 import { CurrentList } from "../pages/CurrentList";
 import { Lists } from "../pages/Lists";
 import { Login } from "../pages/Login";
@@ -18,10 +14,6 @@ import { Register } from "../pages/Register";
 const tabRoutes = createBottomTabNavigator();
 
 const TabRoutes: React.FC = () => {
-  const { currentList } = useLists();
-
-  const isFirstList = currentList.status ? false : true;
-
   return (
     <tabRoutes.Navigator
       sceneContainerStyle={{
@@ -60,19 +52,6 @@ const TabRoutes: React.FC = () => {
         }}
       />
       <tabRoutes.Screen
-        name="Nova Lista"
-        component={isFirstList ? CreateFirstList : NewList}
-        options={{
-          tabBarIcon: ({ size, color }) => (
-            <MaterialIcons
-              name="add-circle-outline"
-              size={size}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <tabRoutes.Screen
         name="Lista Atual"
         component={CurrentList}
         options={{
@@ -95,26 +74,6 @@ const TabRoutes: React.FC = () => {
               size={size}
               color={color}
             />
-          ),
-        }}
-      />
-
-      <tabRoutes.Screen
-        name="Login"
-        component={Login}
-        options={{
-          tabBarIcon: ({ size, color }) => (
-            <MaterialIcons name="login" size={size} color={color} />
-          ),
-        }}
-      />
-
-      <tabRoutes.Screen
-        name={`Criar`}
-        component={Register}
-        options={{
-          tabBarIcon: ({ size, color }) => (
-            <MaterialIcons name="app-registration" size={size} color={color} />
           ),
         }}
       />

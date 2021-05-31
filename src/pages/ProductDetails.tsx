@@ -23,6 +23,7 @@ import { Picker } from "@react-native-picker/picker";
 // Hooks
 import { useProducts } from "../hooks/useProducts";
 import { useProductQuantities } from "../hooks/useProductQuantities";
+import { useLists } from "../hooks/useLists";
 
 // Components
 import { BackButton } from "../components/BackButton";
@@ -46,31 +47,42 @@ export function ProductDetails() {
   const route = useRoute();
   const navigation = useNavigation();
 
+  const {
+    updateSingleProductFinalQuantity,
+    addSingleProductQuantity,
+    updateSingleProductQuantity,
+  } = useProductQuantities();
+  const { products } = useProducts();
+  const { isFirstList, currentList } = useLists();
+
   const { mode, productQuantity, isFinalQuantity } =
     route.params as EditProductParams;
 
-  const [quantity, setQuantity] = useState(
-    productQuantity.initial_quantity ?? productQuantity.suggestion_quantity ?? 0
-  );
+  const [quantity, setQuantity] = useState(() => {
+    if (mode === "add") return 0;
+    if (isFirstList) return productQuantity.initial_quantity;
+    if (currentList?.status.description === "em aberto") return 0;
+
+    return productQuantity.initial_quantity;
+  });
 
   const [unity, setUnity] = useState(
     productQuantity.unity?.description.toLowerCase() ?? "un"
   );
 
-  const [filteredProducts, setFilteredProducts] = useState<string[]>([]);
+  const [filteredProductsNames, setFilteredProductsNames] = useState<string[]>(
+    []
+  );
 
-  const [selectedProduct, setSelectedProduct] = useState<string>(
+  const [selectedProductName, setSelectedProductName] = useState<string>(
     (productQuantity.product?.name as string) ?? ""
   );
 
-  const [initialProduct, setInitialProduct] = useState<string>(
-    (productQuantity.product?.name as string) ?? ""
+  const [selectedProduct, setSelectedProduct] = useState<Product>(
+    productQuantity.product ?? { name: "" }
   );
 
   const [hideSuggestions, setHideSuggestions] = useState(false);
-
-  const { currentListProducts, products } = useProducts();
-  const { updateSingleProduct } = useProductQuantities();
 
   function handleTouchableWithoutFeedback() {
     Keyboard.dismiss;
@@ -82,35 +94,34 @@ export function ProductDetails() {
 
   function filterProduct(query: string) {
     if (query) {
+      if (hideSuggestions) setHideSuggestions(false);
+
       const regex = new RegExp(`${query.trim()}`, "i");
-      let productFilter: Product[];
 
-      if (products.length > 0) {
-        productFilter = products.filter(
-          (product) => product.name.search(regex) >= 0
-        );
-      } else {
-        productFilter = currentListProducts.filter(
-          (product) => product.name.search(regex) >= 0
-        );
-      }
+      const productsFiltered = products.filter(
+        (product) => product.name.search(regex) >= 0
+      );
 
-      const productFilterNames = productFilter.map((item) => item.name);
+      const productsFilteredNames = productsFiltered.map(
+        (product) => product.name
+      );
 
-      if (hideSuggestions) {
-        setHideSuggestions(false);
-      }
-
-      setFilteredProducts(productFilterNames);
-      setSelectedProduct(query);
+      setFilteredProductsNames(productsFilteredNames);
+      setSelectedProductName(query);
+      setSelectedProduct({ name: query });
     } else {
-      setFilteredProducts([]);
+      setFilteredProductsNames([]);
     }
   }
 
   function handleAutoCompleteOnPress(productName: string) {
-    setSelectedProduct(productName);
-    setFilteredProducts([]);
+    const productExists = products.find(
+      (product) => product.name === productName
+    );
+
+    if (productExists) setSelectedProduct(productExists);
+
+    setSelectedProductName(productName);
   }
 
   function handleQuantityChange(text: string) {
@@ -123,18 +134,20 @@ export function ProductDetails() {
 
   async function handleProductSave() {
     if (isFinalQuantity) {
-      console.log("Atualizando a final quantity...");
-      updateSingleProduct({
-        initialName: initialProduct,
-        selectedName: initialProduct,
-        quantity: productQuantity.initial_quantity,
-        unity,
+      updateSingleProductFinalQuantity({
+        id: productQuantity.id as string,
         final_quantity: quantity,
       });
-    } else {
-      updateSingleProduct({
-        initialName: initialProduct,
-        selectedName: selectedProduct,
+    } else if (mode === "add") {
+      addSingleProductQuantity({
+        product: selectedProduct,
+        quantity,
+        unity,
+      });
+    } else if (mode === "edit") {
+      updateSingleProductQuantity({
+        product: productQuantity.product as Product,
+        newProduct: selectedProduct,
         quantity,
         unity,
       });
@@ -236,8 +249,8 @@ export function ProductDetails() {
                       <Autocomplete
                         autoCapitalize="words"
                         autoCorrect={true}
-                        data={filteredProducts}
-                        defaultValue={selectedProduct}
+                        data={filteredProductsNames}
+                        defaultValue={selectedProductName}
                         onChangeText={(text) => filterProduct(text)}
                         placeholder="Digite o nome do produto"
                         style={styles.nameInput}
@@ -271,7 +284,11 @@ export function ProductDetails() {
               )}
 
               <View style={styles.buttonWrapper}>
-                <Button text="SALVAR" onPress={handleProductSave} />
+                <Button
+                  text="SALVAR"
+                  onPress={handleProductSave}
+                  disabled={selectedProductName.length === 0}
+                />
               </View>
             </View>
           </View>

@@ -1,6 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { StyleSheet, View, Text, ScrollView } from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/core";
+import React, { useCallback, useState, useEffect } from "react";
+import { StyleSheet, View } from "react-native";
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/core";
 import { getStatusBarHeight } from "react-native-iphone-x-helper";
 
 // Hooks
@@ -22,6 +26,7 @@ import colors from "../styles/colors";
 
 // Interfaces
 import { ScrappedProduct } from "../interfaces";
+import { ModeraModal } from "../components/ModeraModal";
 
 interface EditListParams {
   url?: string;
@@ -32,25 +37,30 @@ export function EditList() {
   const routes = useRoute();
   const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(true);
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
 
   const { url, listContext } = routes.params as EditListParams;
-  const { newList, currentList, isFirstList, createList } = useLists();
-  const { updateFirstListProducts, createBatchProducts } = useProducts();
+  const { isFirstList, createList } = useLists();
+  const { verifyNewProducts, createBatchProducts, products } = useProducts();
   const {
-    updateFirstListProductQuantities,
+    newProductQuantities,
     productQuantities,
+    generateScrappedProductQuantities,
+    updateNewProductQuantities,
+    useSuggestedProductQuantitiesForNewList,
     createBatchProductQuantities,
+    updateBatchProductQuantities,
   } = useProductQuantities();
-
-  const list = listContext === "newListEdition" ? newList : currentList;
 
   async function fetchScrappedProducts() {
     try {
       const response = await api.post("/scrap", { url_nfce: url });
       const scrappedProducts: ScrappedProduct[] = response.data.products;
 
-      updateFirstListProducts(scrappedProducts);
-      updateFirstListProductQuantities(scrappedProducts);
+      const newProductQtts =
+        generateScrappedProductQuantities(scrappedProducts);
+
+      updateNewProductQuantities(newProductQtts);
     } catch (error) {
       console.log(error);
     } finally {
@@ -59,43 +69,55 @@ export function EditList() {
   }
 
   useEffect(() => {
-    if (isFirstList) {
-      fetchScrappedProducts();
+    if (listContext === "currentListEdition") {
+      updateNewProductQuantities(productQuantities);
+      setIsLoading(false);
     } else {
-      /**
-       * TODO: show the results of the processing for new list,
-       * when the backend calculates the suggestions
-       * fetchSuggestedProducts();
-       */
+      isFirstList
+        ? fetchScrappedProducts()
+        : useSuggestedProductQuantitiesForNewList();
+
       setIsLoading(false);
     }
   }, []);
 
   function handleOnCancel() {
-    listContext === "newListEdition"
-      ? navigation.navigate("Home")
-      : navigation.goBack();
+    if (listContext === "currentListEdition") {
+      navigation.goBack();
+    } else {
+      isFirstList ? navigation.navigate("QRScan") : navigation.navigate("Home");
+    }
   }
 
   async function handleOnSave() {
     setIsLoading(true);
 
     try {
-      const persistedList =
-        listContext === "newListEdition" ? await createList() : list;
+      const newProducts = verifyNewProducts(newProductQuantities);
 
-      const persistedProducts = await createBatchProducts(productQuantities);
+      let updatedProducts = products;
 
-      await createBatchProductQuantities({
-        list: persistedList,
-        products: persistedProducts,
-      });
+      if (newProducts.length > 0) {
+        updatedProducts = await createBatchProducts(newProducts);
+      }
 
-      navigation.navigate("Home");
+      if (listContext === "currentListEdition") {
+        await updateBatchProductQuantities(updatedProducts);
+        navigation.goBack();
+      } else {
+        const list = await createList();
+
+        await createBatchProductQuantities({
+          list,
+          products: updatedProducts,
+          isFirstList,
+        });
+
+        navigation.navigate("Home");
+      }
     } catch (err) {
       console.log(err);
-    } finally {
-      setIsLoading(false);
+      setErrorModalVisible(true);
     }
   }
 
@@ -106,7 +128,7 @@ export function EditList() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <ListInfo />
+        <ListInfo status={null} />
 
         <View style={styles.buttonsWrapper}>
           <Button type="secondary" text="CANCELAR" onPress={handleOnCancel} />
@@ -115,7 +137,20 @@ export function EditList() {
         </View>
       </View>
 
-      <ProductList isEditMode={true} list={list} />
+      <ProductList isEditMode={true} productQuantities={newProductQuantities} />
+
+      <ModeraModal
+        visible={errorModalVisible}
+        type="error"
+        title="Ops!"
+        text="Desculpe! Houve um erro ao criar a lista, tente novamente mais tarde."
+        actionText="OK"
+        onActionPress={() => {
+          setErrorModalVisible(false);
+          setIsLoading(false);
+          navigation.navigate("Home");
+        }}
+      />
     </View>
   );
 }

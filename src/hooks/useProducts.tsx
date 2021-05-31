@@ -1,10 +1,4 @@
-import React, {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import React, { createContext, ReactNode, useContext, useState } from "react";
 
 import api from "../services/api";
 
@@ -21,20 +15,9 @@ interface ProductsProviderProps {
 
 interface ProductsContextData {
   products: Product[];
-  currentListProducts: Product[];
-
-  updateFirstListProducts: (scrappedProducts: ScrappedProduct[]) => void;
-
-  addProductToCurrentList: ({
-    oldProduct,
-    newProduct,
-  }: AddProductToCurrentList) => void;
-
-  removeProductFromCurrentList: (product: Product) => void;
-
-  createBatchProducts: (
-    productQuantities: ProductQuantity[]
-  ) => Promise<Product[]>;
+  fetchProducts: () => Promise<void>;
+  verifyNewProducts: (productQuantities: ProductQuantity[]) => Product[];
+  createBatchProducts: (newProducts: Product[]) => Promise<Product[]>;
 }
 
 const ProductsContext = createContext<ProductsContextData>(
@@ -42,92 +25,45 @@ const ProductsContext = createContext<ProductsContextData>(
 );
 
 export function ProductsProvider({ children }: ProductsProviderProps) {
-  const [products, setProducts] = useState<Product[]>([]); // Empty in first list
-  const [currentListProducts, setCurrentListProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  async function fetchProducts() {
+  const fetchProducts = async () => {
     const response = await api.get("products");
     setProducts(response.data.rows);
-  }
 
-  const updateFirstListProducts = (productList: ScrappedProduct[]) => {
-    const products: Product[] = [];
-
-    for (let product of productList) {
-      const name = product.description.trim();
-      products.push({ name });
-    }
-
-    setCurrentListProducts(products);
+    console.log("All products fetched:", response.data);
   };
 
-  const addProductToCurrentList = ({
-    oldProduct,
-    newProduct,
-  }: AddProductToCurrentList) => {
-    const updatedCurrentProducts = [...currentListProducts];
-
-    // If the old product exists, is an update.. if not, is a new product
-    const currentProductExists = updatedCurrentProducts.find(
-      (item) => item.name === oldProduct.name
+  const verifyNewProducts = (productQuantities: ProductQuantity[]) => {
+    const incomingProducts = productQuantities.map(
+      (item) => item.product as Product
     );
 
-    if (currentProductExists) {
-      const index = updatedCurrentProducts.indexOf(currentProductExists);
-      updatedCurrentProducts[index] = newProduct;
-    } else {
-      updatedCurrentProducts.push(newProduct);
-    }
+    const newProducts: Product[] = [];
 
-    setCurrentListProducts(updatedCurrentProducts);
-  };
+    incomingProducts.map((incomingProduct) => {
+      const productExists = products.find(
+        (product) => product.name === incomingProduct.name
+      );
 
-  const removeProductFromCurrentList = (product: Product) => {
-    const updatedCurrentProducts = [...currentListProducts];
-    updatedCurrentProducts.splice(updatedCurrentProducts.indexOf(product));
-    setCurrentListProducts(updatedCurrentProducts);
+      if (!productExists) {
+        newProducts.push(incomingProduct);
+      }
+    });
+
+    return newProducts;
   };
 
   const createBatchProducts = async (
-    productQuantities: ProductQuantity[]
+    newProducts: Product[]
   ): Promise<Product[]> => {
     try {
-      const selectedProducts = productQuantities.map(
-        (item) => item.product as Product
-      );
+      const response = await api.post("/products/batch", newProducts);
+      const updatedProducts = [...products, ...response.data];
 
-      let newProducts: Product[] = [];
-      const existingSelectedProducts: Product[] = [];
+      setProducts(updatedProducts);
 
-      // Verify which products are not persisted yet
-      for (const selectedProduct of selectedProducts) {
-        const productExists = products.find(
-          (item) => item.name === selectedProduct.name
-        );
-
-        if (productExists) {
-          existingSelectedProducts.push(productExists);
-        } else {
-          newProducts.push(selectedProduct);
-        }
-      }
-
-      if (newProducts.length > 0) {
-        const response = await api.post("/products/batch", newProducts);
-        newProducts = response.data;
-      }
-
-      const updatedSelectedProducts =
-        existingSelectedProducts.concat(newProducts);
-
-      setCurrentListProducts(updatedSelectedProducts);
-      await fetchProducts();
-
-      return updatedSelectedProducts;
+      return updatedProducts;
     } catch (err) {
       console.log(err);
       throw Error("Erro ao salvar os produtos da lista");
@@ -138,10 +74,8 @@ export function ProductsProvider({ children }: ProductsProviderProps) {
     <ProductsContext.Provider
       value={{
         products,
-        currentListProducts,
-        updateFirstListProducts,
-        addProductToCurrentList,
-        removeProductFromCurrentList,
+        fetchProducts,
+        verifyNewProducts,
         createBatchProducts,
       }}
     >
