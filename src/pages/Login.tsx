@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
   Keyboard,
+  Platform,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -25,6 +26,7 @@ import fonts from "../styles/fonts";
 
 export function Login() {
   const navigation = useNavigation();
+  const emailRef = useRef<TextInput | null>(null);
   const passwordRef = useRef<TextInput | null>(null);
 
   const [errorModalVisible, setErrorModalVisible] = useState(false);
@@ -45,7 +47,14 @@ export function Login() {
       Keyboard.dismiss;
 
       await authenticateUser({ email, password });
-      navigation.navigate("Home");
+
+      setEmail("");
+      setPassword("");
+
+      emailRef.current?.clear();
+      passwordRef.current?.clear();
+
+      navigation.navigate("HomeRoutes");
     } catch (error) {
       console.log(error);
       setErrorModalVisible(true);
@@ -103,7 +112,7 @@ export function Login() {
             justifyContent: "center",
           }}
           style={styles.container}
-          behavior="position"
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <>
@@ -116,6 +125,7 @@ export function Login() {
 
               <View style={styles.form}>
                 <TextInput
+                  ref={emailRef}
                   style={[
                     styles.input,
                     { marginBottom: 34 },

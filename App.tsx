@@ -14,6 +14,7 @@ import {
 import { ProductsProvider } from "./src/hooks/useProducts";
 import { ProductQuantitiesProvider } from "./src/hooks/useProductQuantities";
 import { ListsProvider } from "./src/hooks/useLists";
+import { AuthProvider } from "./src/hooks/useAuth";
 
 // Routes
 import Routes from "./src/routes";
@@ -48,12 +49,14 @@ export default function App() {
   }
 
   return (
-    <ListsProvider>
-      <ProductsProvider>
-        <ProductQuantitiesProvider>
-          <Routes isUserLogged={isUserLogged} />
-        </ProductQuantitiesProvider>
-      </ProductsProvider>
-    </ListsProvider>
+    <AuthProvider>
+      <ListsProvider>
+        <ProductsProvider>
+          <ProductQuantitiesProvider>
+            <Routes isUserLogged={isUserLogged} />
+          </ProductQuantitiesProvider>
+        </ProductsProvider>
+      </ListsProvider>
+    </AuthProvider>
   );
 }
