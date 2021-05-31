@@ -36,6 +36,7 @@ export interface ProductQuantity {
   final_quantity?: number;
   suggestion_quantity?: number;
   unity: Unity;
+  id_unity?: string;
   product_id?: string;
   product?: Product;
   createdAt?: Date;

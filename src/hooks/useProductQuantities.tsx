@@ -132,7 +132,9 @@ export function ProductQuantitiesProvider({
 
     for (let scrappedProduct of scrappedProducts) {
       const initial_quantity = scrappedProduct.quantity;
-      const unity = { description: scrappedProduct.unity_measure.trim() };
+      const unity = {
+        description: scrappedProduct.unity_measure.trim().toLowerCase(),
+      };
       const product = { name: scrappedProduct.description.trim() };
 
       const productQuantity = {
@@ -219,17 +221,21 @@ export function ProductQuantitiesProvider({
       `/product-quantities/lists/${list_id}?order=created_at,desc`
     );
 
-    if (response.data !== productQuantities) {
-      setProductQuantities(response.data.rows);
-      setNewProductQuantities(response.data.rows);
-      setCount(response.data.rows.length);
+    const normalizedProductQuantities = response.data.rows.map((item: any) => ({
+      ...item,
+      checked: false,
+    }));
+
+    if (normalizedProductQuantities !== productQuantities) {
+      setProductQuantities(normalizedProductQuantities);
+      setNewProductQuantities(normalizedProductQuantities);
+      setCount(normalizedProductQuantities.length);
     }
   };
 
   const createBatchProductQuantities = async ({
     list,
     products,
-    isFirstList,
   }: CreateBatchProductQuantities) => {
     try {
       const currentProductQuantities = [...newProductQuantities];
@@ -262,12 +268,23 @@ export function ProductQuantitiesProvider({
             (product) => product.id === item.product_id
           );
 
+          const productQuantity = createProductQuantitiesPayload.find(
+            (payload) => payload.product_id === item.product_id
+          );
+
           return {
             ...item,
             product: fullProduct,
+            unity: {
+              id: item.id_unity,
+              description: productQuantity?.unity.description,
+            },
+            checked: false,
           };
         }
       );
+
+      console.log("Normalized:", normalizedProductQuantities);
 
       setNewProductQuantities(normalizedProductQuantities);
       setProductQuantities(normalizedProductQuantities);
@@ -453,9 +470,31 @@ export function ProductQuantitiesProvider({
       updateProductQuantitiesPayload
     );
 
-    setNewProductQuantities(response.data);
-    setProductQuantities(response.data);
-    setCount(response.data.length);
+    const normalizedProductQuantities = response.data.map(
+      (item: ProductQuantity) => {
+        const fullProduct = products.find(
+          (product) => product.id === item.product_id
+        );
+
+        const productQuantity = updateProductQuantitiesPayload.find(
+          (payload) => payload.product_id === item.product_id
+        );
+
+        return {
+          ...item,
+          product: fullProduct,
+          unity: {
+            id: item.id_unity,
+            description: productQuantity?.unity.description,
+          },
+          checked: false,
+        };
+      }
+    );
+
+    setNewProductQuantities(normalizedProductQuantities);
+    setProductQuantities(normalizedProductQuantities);
+    setCount(normalizedProductQuantities.length);
   };
 
   return (

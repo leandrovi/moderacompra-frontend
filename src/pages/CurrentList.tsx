@@ -24,7 +24,7 @@ export function CurrentList() {
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const { finalizeList, currentList } = useLists();
+  const { currentList, finalizeList, confirmList } = useLists();
 
   const {
     productQuantities,
@@ -33,7 +33,6 @@ export function CurrentList() {
     allChecked,
     generateSuggestions,
     updateFinalProductQuantities,
-    updateNewProductQuantities,
   } = useProductQuantities();
 
   async function handleFinalizeList() {
@@ -46,6 +45,16 @@ export function CurrentList() {
       setLoading(false);
     } catch (err) {
       console.log("Error finalizing list:", err);
+    }
+  }
+
+  async function handleConfirmList() {
+    try {
+      setLoading(true);
+      await confirmList();
+      setLoading(false);
+    } catch (err) {
+      console.log("Error confirming list:", err);
     }
   }
 
@@ -65,8 +74,22 @@ export function CurrentList() {
     if (currentList?.status.description === "pendente") {
       return (
         <View style={styles.controls}>
-          <Button text="EDITAR" />
-          <Button text="CONFIRMAR" disabled={!allChecked} />
+          <Button
+            text="EDITAR"
+            onPress={() =>
+              navigation.navigate("EditList", {
+                listContext: "currentListEdition",
+              })
+            }
+          />
+
+          <View style={styles.divider} />
+
+          <Button
+            text="CONFIRMAR"
+            disabled={!allChecked}
+            onPress={handleConfirmList}
+          />
         </View>
       );
     }
@@ -82,14 +105,6 @@ export function CurrentList() {
       setModalVisible(true);
     }
   }, []);
-
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     if (!currentList?.id) {
-  //       setModalVisible(true);
-  //     }
-  //   }, [])
-  // );
 
   if (loading) {
     return <Loader />;
@@ -191,5 +206,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginVertical: 20,
+  },
+
+  divider: {
+    width: 22,
   },
 });

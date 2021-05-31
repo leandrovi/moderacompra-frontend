@@ -28,7 +28,7 @@ export function ListInfo({ status }: ListInfoProps) {
       setInfoType("blue");
       setText("Antes da próxima lista, atualize o que sobrou da última compra");
     }
-  }, [infoType]);
+  }, []);
 
   return status !== "finalizada" ? <Info type={infoType} text={text} /> : <></>;
 }

@@ -103,17 +103,18 @@ export function EditList() {
 
       if (listContext === "currentListEdition") {
         await updateBatchProductQuantities(updatedProducts);
+        navigation.goBack();
       } else {
         const list = await createList();
+
         await createBatchProductQuantities({
           list,
           products: updatedProducts,
           isFirstList,
         });
-      }
 
-      navigation.navigate("Home");
-      // setIsLoading(false);
+        navigation.navigate("Home");
+      }
     } catch (err) {
       console.log(err);
       setErrorModalVisible(true);

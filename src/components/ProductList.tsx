@@ -93,7 +93,8 @@ export function ProductList({
 
       {isEditAndNotFirstList && (
         <Text style={styles.suggestions_tip}>
-          As quantidades são baseadas {"\n"} em seu histórico de consumo! 🚀
+          As quantidades geradas abaixo são {"\n"} baseadas em seu histórico de
+          consumo! 🚀
         </Text>
       )}
 

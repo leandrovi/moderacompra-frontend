@@ -21,6 +21,7 @@ interface ListsContextData {
   fetchAllLists: (offset?: number) => Promise<FetchAllListsResponse>;
   createList: () => Promise<List>;
   finalizeList: () => Promise<void>;
+  confirmList: () => Promise<void>;
 }
 
 const ListsContext = createContext<ListsContextData>({} as ListsContextData);
@@ -69,11 +70,13 @@ export function ListsProvider({ children }: ListsProviderProps) {
     try {
       const response = await api.post("/lists", {
         isFirstList,
+        id_status: isFirstList ? null : 0,
       });
 
       console.log("Created list:", response.data);
 
       const list = response.data;
+
       const normalizedList: List = {
         ...list,
         status: {
@@ -90,6 +93,9 @@ export function ListsProvider({ children }: ListsProviderProps) {
 
       if (isFirstList) setIsFirstList(false);
 
+      console.log("Normalized Created List:", normalizedList);
+      console.log("Updated Lists:", updatedLists);
+
       return list;
     } catch (err) {
       console.log(err);
@@ -101,6 +107,42 @@ export function ListsProvider({ children }: ListsProviderProps) {
     try {
       const response = await api.put(`/lists/${currentList?.id}`, {
         id_status: 2,
+      });
+
+      console.log("Updated list:", response.data);
+
+      const list: List = {
+        ...response.data,
+        status: {
+          id: response.data.id_status,
+          description: setStatus(response.data.id_status),
+        },
+      };
+
+      const updatedLists = [...lists];
+      const listExists = updatedLists.find((l) => l.id === list.id);
+
+      if (listExists) {
+        const index = updatedLists.indexOf(listExists);
+        updatedLists[index] = list;
+      }
+
+      if (isFirstList) setIsFirstList(false);
+
+      setCurrentList(list);
+      setLists(updatedLists);
+      console.log("Current List:", list);
+      console.log("Updated Lists:", updatedLists);
+    } catch (err) {
+      console.log(err);
+      return err;
+    }
+  };
+
+  const confirmList = async (): Promise<void> => {
+    try {
+      const response = await api.put(`/lists/${currentList?.id}`, {
+        id_status: 1,
       });
 
       console.log("Updated list:", response.data);
@@ -130,6 +172,7 @@ export function ListsProvider({ children }: ListsProviderProps) {
         fetchAllLists,
         createList,
         finalizeList,
+        confirmList,
       }}
     >
       {children}
