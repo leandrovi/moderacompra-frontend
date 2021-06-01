@@ -1,9 +1,10 @@
-import React from "react";
-import { StyleSheet, View, Text, Image } from "react-native";
+import { useNavigation } from "@react-navigation/core";
+import React, { useEffect, useState } from "react";
+import { StyleSheet, View, Text, Image, TouchableOpacity } from "react-native";
 import { getStatusBarHeight } from "react-native-iphone-x-helper";
 
 // Assets
-import userImg from "../assets/perfil-foto-pico.jpeg";
+import { useAuth } from "../hooks/useAuth";
 
 // Styles
 import colors from "../styles/colors";
@@ -11,18 +12,40 @@ import fonts from "../styles/fonts";
 
 interface HeaderProps {
   firstLine: string;
-  secondLine: string;
+  secondLine?: string;
 }
 
 export function Header({ firstLine, secondLine }: HeaderProps) {
+  const navigation = useNavigation();
+  const { user } = useAuth();
+
+  const [picture, setPicture] = useState(
+    "https://ui-avatars.com/api/?name=Modera+Compra"
+  );
+  const [name, setName] = useState("Modera");
+
+  useEffect(() => {
+    if (user) {
+      if (user.picture) {
+        setPicture(user.picture);
+      } else {
+        setPicture(`https://ui-avatars.com/api/?name=${user.name}`);
+      }
+
+      setName(user.name);
+    }
+  }, [user]);
+
   return (
     <View style={styles.header}>
       <View>
         <Text style={styles.firstLine}>{firstLine}</Text>
-        <Text style={styles.secondLine}>{secondLine}</Text>
+        <Text style={styles.secondLine}>{secondLine ?? name}</Text>
       </View>
 
-      <Image source={userImg} style={styles.image} />
+      <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+        <Image source={{ uri: picture }} style={styles.image} />
+      </TouchableOpacity>
     </View>
   );
 }

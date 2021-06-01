@@ -1,85 +1,197 @@
-﻿import React, { useState } from "react";
+﻿import React, { useRef, useState } from "react";
 import {
   StyleSheet,
   View,
   Text,
   TextInput,
   TouchableOpacity,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard,
+  Platform,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import { getStatusBarHeight } from "react-native-iphone-x-helper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
+
+import { useAuth } from "../hooks/useAuth";
+
 import LoginPicture from "../assets/svgs/LoginPicture";
 
 import { Button } from "../components/Button";
+import { ModeraModal } from "../components/ModeraModal";
+
 import colors from "../styles/colors";
 import fonts from "../styles/fonts";
-import { MyInput } from "../components/MyInput";
 
-/* interface UserInput {
-  email: string;
-  password: string;
-}
- */
 export function Login() {
   const navigation = useNavigation();
+  const emailRef = useRef<TextInput | null>(null);
+  const passwordRef = useRef<TextInput | null>(null);
+
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const [isEmailInputFocused, setIsEmailInputFocused] = useState(false);
+  const [isEmailInputFilled, setIsEmailInputFilled] = useState(false);
+
+  const [isPasswordInputFocused, setIsPasswordInputFocused] = useState(false);
+  const [isPasswordInputFilled, setIsPasswordInputFilled] = useState(false);
+
+  const { authenticateUser } = useAuth();
+
   async function enterSession() {
     try {
-      /*  const response = await api.post("/sessions", { url_nfce: url });
-      const scrappedProducts: ScrappedProduct[] = response.data.products;
+      Keyboard.dismiss;
 
-      updateFirstListProducts(scrappedProducts);
-      updateFirstListProductQuantities(scrappedProducts); */
+      await authenticateUser({ email, password });
+
+      setEmail("");
+      setPassword("");
+
+      emailRef.current?.clear();
+      passwordRef.current?.clear();
+
+      navigation.navigate("HomeRoutes");
     } catch (error) {
       console.log(error);
+      setErrorModalVisible(true);
     }
   }
 
-  return (
-    <ScrollView>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.picture}>
-            <LoginPicture />
-          </View>
-          <Text style={styles.bemVindo}>Bem vindo(a) novamente</Text>
-        </View>
-        <View style={styles.form}>
-          {/* <MyInput  textPlaceHolder="Seu email"  valueInput={email} /> */}
-          <TextInput
-            style={styles.input}
-            placeholder="Seu email"
-            value={email}
-            onChangeText={(text) => setEmail(text)}
-          />
-          <Text>{email}</Text>
-          {/* <MyInput  isPassword={true}   textPlaceHolder="Sua senha"  valueInput={password} /> */}
-          <TextInput
-            style={styles.input}
-            secureTextEntry={true}
-            placeholder="Sua senha"
-            value={password}
-            onChangeText={(text) => setPassword(text)}
-          />
-          <Text>{password}</Text>
-        </View>
-        <TouchableOpacity
-          style={styles.passTouch}
-          onPress={() => navigation.navigate("Home")}
-        >
-          <Text style={styles.forgotpass}>Esqueceu sua senha?</Text>
-        </TouchableOpacity>
-        <Button type="primary" text="Entrar" onPress={enterSession} />
+  function handleEmailInputBlur() {
+    setIsEmailInputFocused(false);
+    setIsEmailInputFilled(!!email);
+  }
 
-        <View>
-          <Text style={styles.subTitle}>Ainda não possui uma conta?</Text>
-        </View>
-      </View>
+  function handleEmailInputFocus() {
+    setIsEmailInputFocused(true);
+  }
+
+  function handleEmailInputChange(value: string) {
+    setIsEmailInputFilled(!!value);
+    setEmail(value);
+  }
+
+  function handlePasswordInputBlur() {
+    setIsPasswordInputFocused(false);
+    setIsPasswordInputFilled(!!password);
+  }
+
+  function handlePasswordInputFocus() {
+    setIsPasswordInputFocused(true);
+  }
+
+  function handlePasswordInputChange(value: string) {
+    setIsPasswordInputFilled(!!value);
+    setPassword(value);
+  }
+
+  function handleErrorModalAction() {
+    setErrorModalVisible(false);
+  }
+
+  return (
+    <ScrollView
+      contentContainerStyle={{
+        flexGrow: 1,
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="always"
+    >
+      <SafeAreaView style={styles.container}>
+        <KeyboardAvoidingView
+          contentContainerStyle={{
+            flex: 1,
+            width: "100%",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          style={styles.container}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <>
+              <View style={styles.header}>
+                <View style={styles.picture}>
+                  <LoginPicture width={167} height={139} />
+                </View>
+                <Text style={styles.welcome}>Bem vindo(a){"\n"}novamente!</Text>
+              </View>
+
+              <View style={styles.form}>
+                <TextInput
+                  ref={emailRef}
+                  style={[
+                    styles.input,
+                    { marginBottom: 34 },
+                    (isEmailInputFocused || isEmailInputFilled) && {
+                      borderColor: colors.orange,
+                    },
+                  ]}
+                  placeholder="Seu e-mail"
+                  onBlur={handleEmailInputBlur}
+                  onFocus={handleEmailInputFocus}
+                  onChangeText={handleEmailInputChange}
+                  keyboardType="email-address"
+                  returnKeyType="next"
+                  autoCapitalize="none"
+                  onSubmitEditing={() => passwordRef.current?.focus()}
+                />
+                <TextInput
+                  ref={passwordRef}
+                  style={[
+                    styles.input,
+                    (isPasswordInputFocused || isPasswordInputFilled) && {
+                      borderColor: colors.orange,
+                    },
+                  ]}
+                  placeholder="Sua senha"
+                  onBlur={handlePasswordInputBlur}
+                  onFocus={handlePasswordInputFocus}
+                  onChangeText={handlePasswordInputChange}
+                  keyboardType="default"
+                  returnKeyType="done"
+                  autoCapitalize="none"
+                  autoCompleteType="off"
+                  secureTextEntry={true}
+                />
+
+                <TouchableOpacity style={{ width: "100%" }}>
+                  <Text style={styles.forgotPassword}>Esqueceu sua senha?</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={{ flexDirection: "row", width: 146, marginTop: 66 }}>
+                <Button type="primary" text="ENTRAR" onPress={enterSession} />
+              </View>
+
+              <TouchableOpacity
+                style={{ width: "100%", marginTop: 66 }}
+                onPress={() => navigation.navigate("SignUp")}
+              >
+                <Text style={styles.register}>
+                  Ainda não tem uma conta?{" "}
+                  <Text style={{ fontFamily: fonts.title }}>Faça parte</Text>
+                </Text>
+              </TouchableOpacity>
+            </>
+          </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
+
+        <ModeraModal
+          visible={errorModalVisible}
+          type="error"
+          title="Ops!"
+          text="Parece que o e-mail ou a senha estão incorretos =("
+          actionText="TENTAR NOVAMENTE"
+          onActionPress={handleErrorModalAction}
+        />
+      </SafeAreaView>
     </ScrollView>
   );
 }
@@ -87,44 +199,55 @@ export function Login() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: "100%",
     paddingHorizontal: 32,
-    paddingVertical: 15,
-    //marginBottom: 10,
-    justifyContent: "space-between",
-  },
-  picture: {
+    paddingVertical: 10,
     alignItems: "center",
+    justifyContent: "center",
   },
+
   header: {
     width: "100%",
     justifyContent: "center",
     alignItems: "center",
-    paddingTop: 20,
-    marginTop: getStatusBarHeight(),
+    marginBottom: 60,
   },
-  bemVindo: {
-    fontFamily: fonts.semiBold,
-    fontSize: 28,
+
+  picture: {
+    alignItems: "center",
+    width: "100%",
+    marginBottom: 24,
+  },
+
+  welcome: {
+    fontFamily: fonts.title,
+    fontSize: 32,
+    lineHeight: 36,
     textAlign: "center",
+    color: colors.darkGray,
   },
+
   form: {
-    //flex: 1,
-    //justifyContent: "space-between",
-    paddingHorizontal: 20,
+    width: "100%",
+    paddingHorizontal: 18,
     alignItems: "center",
   },
+
   input: {
     borderBottomWidth: 1,
-    borderColor: colors.orange,
+    borderColor: colors.lightGray,
     color: colors.darkGray,
     width: "100%",
     fontSize: 16,
-    marginTop: 25,
-    //marginVertical: 20,
+    lineHeight: 23,
+    fontFamily: fonts.textLight,
+    paddingBottom: 7,
   },
+
   buttonStyle: {
     //paddingHorizontal: 20,
   },
+
   subTitle: {
     flex: 1,
     fontFamily: fonts.text,
@@ -134,18 +257,36 @@ const styles = StyleSheet.create({
     //position: fixed;
     paddingVertical: 5,
   },
+
   passTouch: {
     alignSelf: "flex-end",
     //textAlign: "right",
   },
-  forgotpass: {
-    fontSize: 12,
-    lineHeight: 13,
-    fontFamily: fonts.text,
-    fontWeight: "bold",
+
+  forgotPassword: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    textAlign: "right",
+    fontSize: 14,
+    lineHeight: 18,
+    fontFamily: fonts.title,
     color: colors.gray,
-    alignSelf: "flex-end",
-    //paddingTop: 10,
-    paddingBottom: 20,
+    marginTop: 8,
+    letterSpacing: 0.3,
+  },
+
+  register: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    textAlign: "center",
+    fontSize: 14,
+    lineHeight: 18,
+    fontFamily: fonts.textLight,
+    color: colors.gray,
+    letterSpacing: 0.3,
   },
 });

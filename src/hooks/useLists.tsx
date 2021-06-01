@@ -1,9 +1,8 @@
 import React from "react";
 import { createContext, ReactNode, useContext, useState } from "react";
 
-import api from "../services/api";
-
 import { List } from "../interfaces";
+import { useAxios } from "./useAxios";
 
 interface FetchAllListsResponse {
   isTheFirstList: boolean;
@@ -34,6 +33,8 @@ export function ListsProvider({ children }: ListsProviderProps) {
   const fetchAllLists = async (
     offset: number = 0
   ): Promise<FetchAllListsResponse> => {
+    const api = await useAxios();
+
     const params = `offset=${offset}&order=created_at,desc`;
     const response = await api.get(`/lists?${params}`);
 
@@ -66,6 +67,8 @@ export function ListsProvider({ children }: ListsProviderProps) {
 
   const createList = async (): Promise<List> => {
     try {
+      const api = await useAxios();
+
       const response = await api.post("/lists", {
         isFirstList,
         id_status: isFirstList ? null : 0,
@@ -98,6 +101,8 @@ export function ListsProvider({ children }: ListsProviderProps) {
 
   const finalizeList = async (): Promise<void> => {
     try {
+      const api = await useAxios();
+
       const response = await api.put(`/lists/${currentList?.id}`, {
         id_status: 2,
       });
@@ -130,6 +135,8 @@ export function ListsProvider({ children }: ListsProviderProps) {
 
   const confirmList = async (): Promise<void> => {
     try {
+      const api = await useAxios();
+
       const response = await api.put(`/lists/${currentList?.id}`, {
         id_status: 1,
       });

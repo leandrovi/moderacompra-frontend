@@ -1,67 +1,109 @@
-﻿import { useNavigation } from "@react-navigation/native";
-import React, { useRef, useState } from "react";
+import { useNavigation } from "@react-navigation/core";
+import React, { useEffect, useRef, useState } from "react";
 import {
   StyleSheet,
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
-  Alert,
+  ScrollView,
   SafeAreaView,
   KeyboardAvoidingView,
+  Platform,
   TouchableWithoutFeedback,
   Keyboard,
-  Platform,
+  TextInput,
+  TouchableOpacity,
+  Image,
 } from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
+import * as ImagePicker from "expo-image-picker";
+
+import { useAuth } from "../hooks/useAuth";
+
+import colors from "../styles/colors";
+import fonts from "../styles/fonts";
 import { Button } from "../components/Button";
 import { ModeraModal } from "../components/ModeraModal";
 import { useAxios } from "../hooks/useAxios";
-import colors from "../styles/colors";
-import fonts from "../styles/fonts";
 
-export function Register() {
+export function Profile() {
   const navigation = useNavigation();
+  const { user } = useAuth();
 
   const [errorModalVisible, setErrorModalVisible] = useState(false);
-  const [successModalVisible, setSuccessModalVisible] = useState(false);
 
   const [name, setName] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [selectedImage, setSelectedImage] =
+    useState<{ localUri: string } | null>(null);
 
   const [nameError, setNameError] = useState<string | null>(null);
-  const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [confirmPasswordError, setConfirmPasswordError] =
     useState<string | null>(null);
 
   const [isNameFocused, setIsNameFocused] = useState(false);
-  const [isEmailFocused, setIsEmailFocused] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [isConfirmPasswordFocused, setIsConfirmPasswordFocused] =
     useState(false);
 
   const [isNameFilled, setIsNameFilled] = useState(false);
-  const [isEmailFilled, setIsEmailFilled] = useState(false);
   const [isPasswordFilled, setIsPasswordFilled] = useState(false);
   const [isConfirmPasswordFilled, setIsConfirmPasswordFilled] = useState(false);
 
   const nameRef = useRef<TextInput | null>(null);
-  const emailRef = useRef<TextInput | null>(null);
   const passwordRef = useRef<TextInput | null>(null);
   const confirmPasswordRef = useRef<TextInput | null>(null);
 
-  async function handleCreateUser() {
+  useEffect(() => {
+    setName(user.name);
+  }, []);
+
+  async function openImagePickerAsync() {
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      alert("Para selecionar uma imagem é necessário dar permissão ao app.");
+      return;
+    }
+
+    const pickerResult = await ImagePicker.launchImageLibraryAsync();
+
+    if (pickerResult.cancelled === true) return;
+
+    setSelectedImage({ localUri: pickerResult.uri });
+  }
+
+  async function handleUpdateUser() {
     const valid = validateFields();
     const api = await useAxios();
 
     if (!valid) return;
 
     try {
-      await api.post("/users", { name, email, password });
-      setSuccessModalVisible(true);
+      let imageUrl;
+
+      if (selectedImage) {
+        const { localUri } = selectedImage;
+        const filename = localUri.split("/").pop() as string;
+
+        const match = /\.(\w+)$/.exec(filename);
+        const type = match ? `image/${match[1]}` : `image`;
+
+        const formData = new FormData();
+
+        formData.append(
+          "file",
+          JSON.parse(JSON.stringify({ uri: localUri, name: filename, type }))
+        );
+
+        const imageResponse = await api.put(`/users/${user.id}/image`);
+
+        console.log(imageResponse);
+      }
+
+      // await api.put(`/users/${user.id}`, { name, password });
+      // navigation.goBack();
     } catch (error) {
       console.log(error);
       setErrorModalVisible(true);
@@ -74,13 +116,6 @@ export function Register() {
     if (name.length <= 2) {
       fieldsAreValid = false;
       setNameError("Por favor, digite seu nome");
-    }
-
-    const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
-
-    if (!reg.test(email)) {
-      fieldsAreValid = false;
-      setEmailError("Por favor, digite seu e-mail no formato nome@email.com");
     }
 
     if (password.length < 5) {
@@ -100,17 +135,14 @@ export function Register() {
 
   function clearFields() {
     setName("");
-    setEmail("");
     setPassword("");
     setConfirmPassword("");
 
     nameRef.current?.clear();
-    emailRef.current?.clear();
     passwordRef.current?.clear();
     confirmPasswordRef.current?.clear();
 
     setNameError(null);
-    setEmailError(null);
     setPasswordError(null);
     setConfirmPasswordError(null);
   }
@@ -118,11 +150,6 @@ export function Register() {
   function handleNameBlur() {
     setIsNameFocused(false);
     setIsNameFilled(!!name);
-  }
-
-  function handleEmailBlur() {
-    setIsEmailFocused(false);
-    setIsEmailFilled(!!email);
   }
 
   function handlePasswordBlur() {
@@ -139,10 +166,6 @@ export function Register() {
     setIsNameFocused(true);
   }
 
-  function handleEmailFocus() {
-    setIsEmailFocused(true);
-  }
-
   function handlePasswordFocus() {
     setIsPasswordFocused(true);
   }
@@ -155,12 +178,6 @@ export function Register() {
     setIsNameFilled(!!value);
     setName(value);
     setNameError(null);
-  }
-
-  function handleEmailChange(value: string) {
-    setIsEmailFilled(!!value);
-    setEmail(value);
-    setEmailError(null);
   }
 
   function handlePasswordChange(value: string) {
@@ -178,11 +195,6 @@ export function Register() {
   function handleErrorModalAction() {
     clearFields();
     setErrorModalVisible(false);
-  }
-
-  function handleSuccessModalAction() {
-    clearFields();
-    navigation.navigate("SignIn");
   }
 
   return (
@@ -208,12 +220,19 @@ export function Register() {
         >
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <>
-              <View style={styles.header}>
-                <Text style={styles.welcome}>Vamos começar?</Text>
-                <Text style={styles.text}>
-                  Crie uma conta para ter acesso a todas as{"\n"}funcionalidades
-                  do ModeraCompra
-                </Text>
+              <View style={styles.imageContent}>
+                <Image
+                  source={{
+                    uri: selectedImage
+                      ? selectedImage.localUri
+                      : `https://ui-avatars.com/api/?name=${user.name}`,
+                  }}
+                  style={styles.image}
+                />
+
+                <TouchableOpacity onPress={openImagePickerAsync}>
+                  <Text style={styles.text}>Atualizar foto</Text>
+                </TouchableOpacity>
               </View>
 
               <View style={styles.form}>
@@ -233,28 +252,9 @@ export function Register() {
                   keyboardType="default"
                   returnKeyType="next"
                   autoCapitalize="words"
-                  onSubmitEditing={() => emailRef.current?.focus()}
-                />
-                {nameError && <Text style={styles.error}>{nameError}</Text>}
-
-                <TextInput
-                  ref={emailRef}
-                  style={[
-                    styles.input,
-                    (isEmailFocused || isEmailFilled) && {
-                      borderColor: colors.orange,
-                    },
-                  ]}
-                  placeholder="Seu e-mail"
-                  onBlur={handleEmailBlur}
-                  onFocus={handleEmailFocus}
-                  onChangeText={handleEmailChange}
-                  keyboardType="email-address"
-                  returnKeyType="next"
-                  autoCapitalize="none"
                   onSubmitEditing={() => passwordRef.current?.focus()}
                 />
-                {emailError && <Text style={styles.error}>{emailError}</Text>}
+                {nameError && <Text style={styles.error}>{nameError}</Text>}
 
                 <TextInput
                   ref={passwordRef}
@@ -302,25 +302,27 @@ export function Register() {
                 )}
               </View>
 
-              <View style={{ flexDirection: "row", width: 146, marginTop: 66 }}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  width: "100%",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginTop: 66,
+                }}
+              >
+                <Button
+                  type="secondary"
+                  text="CANCELAR"
+                  onPress={() => navigation.goBack()}
+                />
+                <View style={styles.divider} />
                 <Button
                   type="primary"
-                  text="CRIAR"
-                  onPress={handleCreateUser}
+                  text="SALVAR"
+                  onPress={handleUpdateUser}
                 />
               </View>
-
-              <TouchableOpacity
-                style={{ width: "100%", marginTop: 66 }}
-                onPress={() => navigation.navigate("SignIn")}
-              >
-                <Text style={styles.text}>
-                  Já tem uma conta?{" "}
-                  <Text style={{ fontFamily: fonts.title }}>
-                    Faça o login aqui
-                  </Text>
-                </Text>
-              </TouchableOpacity>
             </>
           </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
@@ -329,18 +331,9 @@ export function Register() {
           visible={errorModalVisible}
           type="error"
           title="Ops!"
-          text="Parece que esse e-mail já está cadastrado =("
+          text="Não foi possível alterar seu perfil no momento"
           actionText="TENTAR NOVAMENTE"
           onActionPress={handleErrorModalAction}
-        />
-
-        <ModeraModal
-          visible={successModalVisible}
-          type="warning"
-          title="Conta criada!"
-          text="Agora você só precisa fazer o login com os seus dados"
-          actionText="VAMOS LÁ"
-          onActionPress={handleSuccessModalAction}
         />
       </SafeAreaView>
     </ScrollView>
@@ -352,31 +345,9 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     paddingHorizontal: 32,
-    paddingVertical: 30,
+    paddingVertical: 10,
     alignItems: "center",
     justifyContent: "center",
-  },
-
-  header: {
-    width: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 60,
-  },
-
-  picture: {
-    alignItems: "center",
-    width: "100%",
-    marginBottom: 24,
-  },
-
-  welcome: {
-    fontFamily: fonts.title,
-    fontSize: 32,
-    lineHeight: 36,
-    textAlign: "center",
-    color: colors.darkGray,
-    marginBottom: 18,
   },
 
   form: {
@@ -395,20 +366,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.textLight,
     paddingBottom: 7,
     marginTop: 34,
-  },
-
-  forgotPassword: {
-    width: "100%",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-end",
-    textAlign: "right",
-    fontSize: 14,
-    lineHeight: 18,
-    fontFamily: fonts.title,
-    color: colors.gray,
-    marginTop: 8,
-    letterSpacing: 0.3,
   },
 
   text: {
@@ -434,5 +391,23 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     marginTop: 5,
+  },
+
+  divider: {
+    width: 22,
+  },
+
+  imageContent: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
+  },
+
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 20,
   },
 });

@@ -9,6 +9,7 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
 import { MaterialIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Hooks
 import { useLists } from "../hooks/useLists";
@@ -24,18 +25,23 @@ import { Loader } from "../components/Loader";
 import colors from "../styles/colors";
 import fonts from "../styles/fonts";
 import { ModeraModal } from "../components/ModeraModal";
+import { useAuth } from "../hooks/useAuth";
 
 export function Home() {
   const navigation = useNavigation();
   const [listsLoaded, setListsLoaded] = useState(false);
   const [pendingListModalVisible, setPendingListModalVisible] = useState(false);
   const [openListModalVisible, setOpenListModalVisible] = useState(false);
+  const [tokenLoaded, setTokenLoaded] = useState(false);
 
   const { fetchAllLists, isFirstList, currentList } = useLists();
   const { fetchProducts } = useProducts();
   const { fetchProductQuantities } = useProductQuantities();
+  const { user } = useAuth();
 
   async function fetchListsAndProducts() {
+    // await AsyncStorage.removeItem("@moderacompra:user");
+    // await AsyncStorage.removeItem("@moderacompra:token");
     const { isTheFirstList, mostRecentList } = await fetchAllLists();
     await fetchProducts();
 
@@ -70,7 +76,7 @@ export function Home() {
 
   return (
     <View style={styles.container}>
-      <Header firstLine="Olá," secondLine="Leandro" />
+      <Header firstLine="Olá," secondLine={user.name} />
 
       <View style={styles.content}>
         {isFirstList && (

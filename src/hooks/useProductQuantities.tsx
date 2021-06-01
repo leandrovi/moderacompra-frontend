@@ -7,8 +7,7 @@ import {
   ScrappedProduct,
   Unity,
 } from "../interfaces";
-
-import api from "../services/api";
+import { useAxios } from "./useAxios";
 
 interface UpdateProductQuantityAmount {
   amount: number;
@@ -217,6 +216,8 @@ export function ProductQuantitiesProvider({
   };
 
   const fetchProductQuantities = async (list_id: string) => {
+    const api = await useAxios();
+
     const response = await api.get(
       `/product-quantities/lists/${list_id}?order=created_at,desc`
     );
@@ -238,6 +239,8 @@ export function ProductQuantitiesProvider({
     list,
     products,
   }: CreateBatchProductQuantities) => {
+    const api = await useAxios();
+
     try {
       const currentProductQuantities = [...newProductQuantities];
       const createProductQuantitiesPayload: CreateProductQuantityPayload[] = [];
@@ -297,6 +300,8 @@ export function ProductQuantitiesProvider({
 
   const generateSuggestions = async (): Promise<ProductQuantity[]> => {
     try {
+      const api = await useAxios();
+
       const consideredProducts = [...newProductQuantities];
       const normalized = consideredProducts.map((productQuantity) => {
         return {
@@ -450,6 +455,8 @@ export function ProductQuantitiesProvider({
   };
 
   const updateBatchProductQuantities = async (products: Product[]) => {
+    const api = await useAxios();
+
     const updatedProductQuantities = [...newProductQuantities];
     const updateProductQuantitiesPayload: UpdateProductQuantityPayload[] = [];
 
