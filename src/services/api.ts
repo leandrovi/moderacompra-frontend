@@ -4,14 +4,14 @@ import axios from "axios";
 const baseURL = "https://secret-lowlands-42826.herokuapp.com"; // staging
 // const baseURL = "https://api-moderacompra.herokuapp.com"; // prod
 
-const hardCodedToken =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjE3OTFkYmEzLTlhNTItNDQ5Mi04OTllLTY3ZGZmZjg3Y2NjNiIsImlhdCI6MTYyMjQ5ODA4MywiZXhwIjoxNjIzNzk0MDgzfQ.62u7jm1jjGcaTzEOKB_IgtTInk_1rk9VWZAvpOjiY1o";
+// const hardCodedToken =
+//   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEzMzgzZGI2LTVlOTYtNDVmNi1hN2MyLTk0MTc3NjJkNzFjOCIsImlhdCI6MTYyMjQ5OTE5OSwiZXhwIjoxNjIzNzk1MTk5fQ.1pOTyd7GlaXrTPG_JzcOPR2dSaZEXwLboUA6Evx0qLE";
 
 const api = axios.create({
   baseURL: baseURL,
-  headers: {
-    Authorization: `Bearer ${hardCodedToken}`,
-  },
+  // headers: {
+  //   Authorization: `Bearer ${hardCodedToken}`,
+  // },
 });
 
 export default api;

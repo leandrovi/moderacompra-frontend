@@ -22,9 +22,12 @@ import Routes from "./src/routes";
 // Storage Service
 import { loadToken, loadUser } from "./src/services/storage";
 
+import { User } from "./src/interfaces";
+
 export default function App() {
   const [loadingUser, setLoadingUser] = useState(true);
   const [isUserLogged, setIsUserLogged] = useState(false);
+  const [userLogged, setUserLogged] = useState<User | null>(null);
 
   useEffect(() => {
     async function loadStorageUser() {
@@ -33,6 +36,7 @@ export default function App() {
 
       if (user && token) {
         setIsUserLogged(true);
+        setUserLogged(user);
       } else {
         setIsUserLogged(false);
       }
@@ -59,7 +63,10 @@ export default function App() {
       <ListsProvider>
         <ProductsProvider>
           <ProductQuantitiesProvider>
-            <Routes isUserLogged={isUserLogged} />
+            <Routes
+              isUserLogged={isUserLogged}
+              userLogged={userLogged as User}
+            />
           </ProductQuantitiesProvider>
         </ProductsProvider>
       </ListsProvider>

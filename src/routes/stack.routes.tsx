@@ -20,15 +20,28 @@ import { Profile } from "../pages/Profile";
 // Styles
 import colors from "../styles/colors";
 
+import { User } from "../interfaces";
+import { useAuth } from "../hooks/useAuth";
+
 const stackRoutes = createStackNavigator();
 
 interface AppRoutesProps {
   isUserLogged: boolean;
+  userLogged: User;
 }
 
 const AppRoutes: React.FC<AppRoutesProps> = ({
   isUserLogged,
+  userLogged,
 }: AppRoutesProps) => {
+  const { updateUser } = useAuth();
+
+  useEffect(() => {
+    if (isUserLogged) {
+      updateUser(userLogged);
+    }
+  }, []);
+
   return (
     <stackRoutes.Navigator
       initialRouteName={isUserLogged ? "HomeRoutes" : "SignIn"}

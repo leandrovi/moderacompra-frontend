@@ -17,16 +17,16 @@ import {
 import * as ImagePicker from "expo-image-picker";
 
 import { useAuth } from "../hooks/useAuth";
-import api from "../services/api";
 
 import colors from "../styles/colors";
 import fonts from "../styles/fonts";
 import { Button } from "../components/Button";
 import { ModeraModal } from "../components/ModeraModal";
+import { useAxios } from "../hooks/useAxios";
 
 export function Profile() {
   const navigation = useNavigation();
-  const { user, headers } = useAuth();
+  const { user } = useAuth();
 
   const [errorModalVisible, setErrorModalVisible] = useState(false);
 
@@ -76,6 +76,7 @@ export function Profile() {
 
   async function handleUpdateUser() {
     const valid = validateFields();
+    const api = await useAxios();
 
     if (!valid) return;
 
@@ -96,9 +97,7 @@ export function Profile() {
           JSON.parse(JSON.stringify({ uri: localUri, name: filename, type }))
         );
 
-        const imageResponse = await api.put(`/users/${user.id}/image`, {
-          headers,
-        });
+        const imageResponse = await api.put(`/users/${user.id}/image`);
 
         console.log(imageResponse);
       }

@@ -11,9 +11,7 @@ import { getStatusBarHeight } from "react-native-iphone-x-helper";
 import { useProducts } from "../hooks/useProducts";
 import { useProductQuantities } from "../hooks/useProductQuantities";
 import { useLists } from "../hooks/useLists";
-
-// Services
-import api from "../services/api";
+import { useAxios } from "../hooks/useAxios";
 
 // Components
 import { Loader } from "../components/Loader";
@@ -54,6 +52,7 @@ export function EditList() {
 
   async function fetchScrappedProducts() {
     try {
+      const api = await useAxios();
       const response = await api.post("/scrap", { url_nfce: url });
       const scrappedProducts: ScrappedProduct[] = response.data.products;
 

@@ -1,8 +1,7 @@
 import React, { createContext, ReactNode, useContext, useState } from "react";
 
-import api from "../services/api";
-
 import { Product, ProductQuantity, ScrappedProduct } from "../interfaces";
+import { useAxios } from "./useAxios";
 
 interface AddProductToCurrentList {
   oldProduct: Product;
@@ -28,10 +27,10 @@ export function ProductsProvider({ children }: ProductsProviderProps) {
   const [products, setProducts] = useState<Product[]>([]);
 
   const fetchProducts = async () => {
+    const api = await useAxios();
+
     const response = await api.get("products");
     setProducts(response.data.rows);
-
-    console.log("All products fetched:", response.data);
   };
 
   const verifyNewProducts = (productQuantities: ProductQuantity[]) => {
@@ -58,6 +57,8 @@ export function ProductsProvider({ children }: ProductsProviderProps) {
     newProducts: Product[]
   ): Promise<Product[]> => {
     try {
+      const api = await useAxios();
+
       const response = await api.post("/products/batch", newProducts);
       const updatedProducts = [...products, ...response.data];
 

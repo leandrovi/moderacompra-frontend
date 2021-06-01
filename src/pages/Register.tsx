@@ -13,11 +13,10 @@ import {
   Keyboard,
   Platform,
 } from "react-native";
-import { ScrollView, State } from "react-native-gesture-handler";
-import { getStatusBarHeight } from "react-native-iphone-x-helper";
+import { ScrollView } from "react-native-gesture-handler";
 import { Button } from "../components/Button";
 import { ModeraModal } from "../components/ModeraModal";
-import api from "../services/api";
+import { useAxios } from "../hooks/useAxios";
 import colors from "../styles/colors";
 import fonts from "../styles/fonts";
 
@@ -56,6 +55,7 @@ export function Register() {
 
   async function handleCreateUser() {
     const valid = validateFields();
+    const api = await useAxios();
 
     if (!valid) return;
 

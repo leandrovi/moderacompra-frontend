@@ -32,6 +32,7 @@ export function Home() {
   const [listsLoaded, setListsLoaded] = useState(false);
   const [pendingListModalVisible, setPendingListModalVisible] = useState(false);
   const [openListModalVisible, setOpenListModalVisible] = useState(false);
+  const [tokenLoaded, setTokenLoaded] = useState(false);
 
   const { fetchAllLists, isFirstList, currentList } = useLists();
   const { fetchProducts } = useProducts();
@@ -40,6 +41,7 @@ export function Home() {
 
   async function fetchListsAndProducts() {
     // await AsyncStorage.removeItem("@moderacompra:user");
+    // await AsyncStorage.removeItem("@moderacompra:token");
     const { isTheFirstList, mostRecentList } = await fetchAllLists();
     await fetchProducts();
 
